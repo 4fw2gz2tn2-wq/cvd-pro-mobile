@@ -1,32 +1,8 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101824"><title>CVD PRO v4.6</title><style>*{box-sizing:border-box}body{margin:0;background:#0e1725;color:#e9f0fa;font:15px -apple-system,BlinkMacSystemFont,sans-serif}main{max-width:620px;margin:auto;padding:22px 16px}.muted{color:#a4b3c8;font-size:12px}.card{background:#17283c;border:1px solid #2a415b;border-radius:17px;padding:16px;margin:14px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.tabs{display:flex;gap:8px;margin-top:18px}button{background:#213a52;color:#fff;border:1px solid #42617d;border-radius:11px;padding:12px 18px;font-weight:bold;cursor:pointer;flex:1}.active{background:#237c68}.green{color:#6ee2af}.red{color:#ff8791}.big{font-size:23px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.stat{background:#23384d;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px}.stat strong{display:block;margin-top:8px}canvas{width:100%;height:155px;display:block}.tf-tabs{margin:12px 0 8px}.tf-tabs button{padding:9px 6px}.chart-title{font-size:12px;color:#bed0e5;margin-top:10px}.chart-div{border-top:1px solid #304860;margin-top:14px;padding-top:12px}.note{font-size:12px;color:#b0bfd0;line-height:1.7}</style></head><body><main><div class="row"><div><div class="big">CVD <span class="green">PRO</span></div><div class="muted">BTC / ETH · 裁量トレード補助</div></div><div id="status" class="muted">接続待ち</div></div><div class="tabs"><button class="active" data-s="BTC">BTC</button><button data-s="ETH">ETH</button></div><div class="card"><div class="row"><div><div class="muted" id="symbol">BTCUSDT · Binance現物</div><div class="big" id="price">—</div><div class="muted" id="tickstatus">ティック接続中…</div></div><div style="text-align:right"><div class="muted">直近15分の成行差分（確定足）</div><div class="big" id="delta">—</div></div></div><div class="stats"><div class="stat">5分<strong id="five">—</strong></div><div class="stat">15分<strong id="fifteen">—</strong></div><div class="stat">1時間<strong id="hour">—</strong></div></div></div><div class="card"><div id="datatime" class="muted">集計基準：取得待ち</div><div id="audit" class="muted" style="margin-top:6px">5分・15分・1時間は同一の確定5分足から集計</div></div><div class="card"><div class="row"><strong>価格 × CVD</strong><span class="muted" id="periodlabel">5分足・直近約24時間</span></div><div class="tabs tf-tabs"><button class="active" data-tf="5m">5分</button><button data-tf="15m">15分</button><button data-tf="1h">1時間</button></div><div class="chart-title">価格（確定足）＋現在の約定価格 <span class="muted" id="livechartstatus">ライブ価格待機中</span></div><canvas id="pricegraph" width="700" height="245"></canvas><div class="chart-title">累積CVD <span class="muted" id="swingstatus">スイング計算中</span></div><canvas id="graph" width="700" height="245"></canvas><div class="muted">水色：確定足終値　水色の点線・丸：現在の約定価格（未確定）　黄色：累積CVD　赤・緑：各足の成行差分。上下は同じ時間軸。緑実線：強気、赤実線：弱気。比較時刻は検出履歴に表示。</div><div class="chart-div"><div class="row"><strong>ダイバージェンス</strong><strong id="divsignal">判定待ち</strong></div><div class="tabs tf-tabs" style="margin-top:10px"><button type="button" data-sens="high">高感度</button><button type="button" data-sens="standard" class="active">標準</button><button type="button" data-sens="strict">厳選</button></div><p id="sensdetail" class="note">標準：左右3本・過去5スイング比較</p><p id="divdetail" class="note">確定スイング2点を比較します。</p><div id="divhistory" class="note" style="margin-top:9px"></div><div id="divstats" class="note" style="margin-top:13px;border-top:1px solid #3c546c;padding-top:12px"></div><div class="note" style="margin-top:8px">履歴をタップすると、その比較ラインを強調表示します。</div></div></div><div class="card"><div class="row"><strong>売買圧力の変化</strong><strong id="change">—</strong></div><p id="detail" class="note">データを取得しています…</p><div class="row"><button id="refresh">更新する</button><span class="muted" id="time">—</span></div></div><div class="card"><strong>接続診断</strong><p id="jscheck" class="note">JavaScript: 未実行</p><button id="testjs" type="button">JavaScriptをテスト</button><p class="note">データが表示されない場合は、接続状態とエラー文をスクリーンショットで送ってね。</p></div><div class="card"><strong>試作品の注意点</strong><p class="note">Binance現物5分足の総出来高と成行買い数量から、成行差分＝2×成行買い数量−総出来高を計算。表示区間内で累積しています。MEXC先物のCVDとは異なります。確定足のみで判定し、1分ごとに再取得します。接続に失敗した場合はデモデータに切り替えません。上部の5分・15分・1時間の成行優勢判定は、独立して取得した確定済み5分足から集計します。チャート時間足を変更しても上部の集計期間は変わりません。チャート時間足を変更すると、チャートの取得間隔と累積CVDの起点は変わります。時間足間のCVD絶対値は直接比較できません。ダイバージェンスは価格の確定スイングと、その前後のCVD局所高値・安値を比較する試験機能です。感度は高感度（左右2本・過去8点）、標準（左右3本・過去5点）、厳選（左右4本・過去3点）。価格の最低変化率は時間足と感度によって変わります。比較間隔は最大72本、同じ終点の同方向シグナルは1件にまとめます。右側の確定足が揃った時刻を判定可能時刻として表示します。表示区間の起点に依存し、将来の反転を保証しません。上部価格と価格チャート右端の水色点線・丸はBinance現物の約定ティックをWebSocketで受信します。点線は未確定の現在価格であり、確定足の終値ラインやCVDには加算しません。切断時は確定5分足終値にフォールバックし、ティック接続状況を明示します。約定価格は板のBid/Askではありません。画面を閉じると通信が停止することがあります。現段階ではバックグラウンドのスマホプッシュ通知は未実装です。投資判断は価格やリスク管理と併用してください。</p></div></main><script>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101824"><title>CVD PRO v4.8 EA2.5</title><style>*{box-sizing:border-box}body{margin:0;background:#0e1725;color:#e9f0fa;font:15px -apple-system,BlinkMacSystemFont,sans-serif}main{max-width:620px;margin:auto;padding:22px 16px}.muted{color:#a4b3c8;font-size:12px}.card{background:#17283c;border:1px solid #2a415b;border-radius:17px;padding:16px;margin:14px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.tabs{display:flex;gap:8px;margin-top:18px}button{background:#213a52;color:#fff;border:1px solid #42617d;border-radius:11px;padding:12px 18px;font-weight:bold;cursor:pointer;flex:1}.active{background:#237c68}.green{color:#6ee2af}.red{color:#ff8791}.big{font-size:23px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.stat{background:#23384d;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px}.stat strong{display:block;margin-top:8px}canvas{width:100%;height:155px;display:block}.tf-tabs{margin:12px 0 8px}.tf-tabs button{padding:9px 6px}.chart-title{font-size:12px;color:#bed0e5;margin-top:10px}.chart-div{border-top:1px solid #304860;margin-top:14px;padding-top:12px}.note{font-size:12px;color:#b0bfd0;line-height:1.7}</style></head><body><main><div class="row"><div><div class="big">CVD <span class="green">PRO</span></div><div class="muted">BTC / ETH · 裁量トレード補助</div></div><div id="status" class="muted">接続待ち</div></div><div class="tabs"><button class="active" data-s="BTC">BTC</button><button data-s="ETH">ETH</button></div><div class="card"><div class="row"><div><div class="muted" id="symbol">BTCUSDT · Binance現物</div><div class="big" id="price">—</div><div class="muted" id="tickstatus">ティック接続中…</div></div><div style="text-align:right"><div class="muted">直近15分の成行差分（確定足）</div><div class="big" id="delta">—</div></div></div><div class="stats"><div class="stat">5分<strong id="five">—</strong></div><div class="stat">15分<strong id="fifteen">—</strong></div><div class="stat">1時間<strong id="hour">—</strong></div></div></div><div class="card"><div id="datatime" class="muted">集計基準：取得待ち</div><div id="audit" class="muted" style="margin-top:6px">5分・15分・1時間は同一の確定5分足から集計</div></div><div class="card"><div class="row"><strong>価格 × CVD</strong><span class="muted" id="periodlabel">5分足・直近約24時間</span></div><div class="tabs tf-tabs"><button class="active" data-tf="5m">5分</button><button data-tf="15m">15分</button><button data-tf="1h">1時間</button></div><div class="chart-title">価格（確定足）＋現在の約定価格 <span class="muted" id="livechartstatus">ライブ価格待機中</span></div><canvas id="pricegraph" width="700" height="245"></canvas><div class="chart-title">累積CVD</div><canvas id="graph" width="700" height="245"></canvas><div class="muted">水色：確定足終値　水色の点線・丸：現在の約定価格（未確定）　黄色：累積CVD　赤・緑：各足の成行差分。上下は同じ時間軸。</div></div><div class="card"><div class="row"><strong>EA 2.5準拠・買いシグナル</strong><strong id="eastatus" class="muted">判定待ち</strong></div><p class="note">15分CVD「負・負・正」→30分以内の5分陽線2本。前日陰線／当日安値維持／H1 EMA20上／直近確定15分足4本のCVD比率+5%以上／確定H1陽線。SLは陽線1本目の安値、参考TPはRR7。</p><div id="eadetail" class="note">確定足を照合中…</div><div id="eahistory" class="note" style="margin-top:8px"></div><p class="muted">Binance現物の買い候補表示。MT5のブローカー価格・約定条件と一致する保証はありません。ETHはBTCでの検証成績を適用できません。</p></div><div class="card"><div class="row"><strong>売買圧力の変化</strong><strong id="change">—</strong></div><p id="detail" class="note">データを取得しています…</p><div class="row"><button id="refresh">更新する</button><span class="muted" id="time">—</span></div></div><div class="card"><strong>接続診断</strong><p id="jscheck" class="note">JavaScript: 未実行</p><button id="testjs" type="button">JavaScriptをテスト</button><p class="note">データが表示されない場合は、接続状態とエラー文をスクリーンショットで送ってね。</p></div><div class="card"><strong>試作品の注意点</strong><p class="note">Binance現物5分足の総出来高と成行買い数量から、成行差分＝2×成行買い数量−総出来高を計算。表示区間内で累積しています。MEXC先物のCVDとは異なります。確定足のみで判定し、1分ごとに再取得します。接続に失敗した場合はデモデータに切り替えません。上部の5分・15分・1時間の成行優勢判定は、独立して取得した確定済み5分足から集計します。チャート時間足を変更しても上部の集計期間は変わりません。チャート時間足を変更すると、チャートの取得間隔と累積CVDの起点は変わります。時間足間のCVD絶対値は直接比較できません。上部価格と価格チャート右端の水色点線・丸はBinance現物の約定ティックをWebSocketで受信します。点線は未確定の現在価格であり、確定足の終値ラインやCVDには加算しません。切断時は確定5分足終値にフォールバックし、ティック接続状況を明示します。約定価格は板のBid/Askではありません。画面を閉じると通信が停止することがあります。現段階ではバックグラウンドのスマホプッシュ通知は未実装です。投資判断は価格やリスク管理と併用してください。</p></div></main><script>
 document.getElementById('jscheck').textContent='JavaScript: 動作中';document.getElementById('testjs').onclick=()=>{document.getElementById('jscheck').textContent='JavaScript: ボタン動作OK '+new Date().toLocaleTimeString('ja-JP')};let symbol='BTC',timeframe='5m',sensitivity='standard',busy=false,requestToken=0;let snapshot=null;let lastPriceSeries=null,lastChartPaint=0;let swingMarks=[];let lastCvdSeries=[];let lastChartRows=[];let selectedSignal=null;let tickSocket=null,tickRetry=null,tickSerial=0,lastTickAt=0,lastTickPrice=null;const tfMs={'5m':300000,'15m':900000,'1h':3600000};const $=id=>document.getElementById(id);const urls=['https://data-api.binance.vision/api/v3/klines','https://api.binance.com/api/v3/klines'];const fmt=x=>Number(x).toLocaleString('en-US',{maximumFractionDigits:2});const sign=x=>x>0?'買い優勢':x<0?'売り優勢':'中立';function set(id,x){$(id).textContent=sign(x);$(id).className=x>0?'green':x<0?'red':''}
 async function get(interval=timeframe,limit=300){let error;for(let base of urls){try{const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);let r;try{r=await fetch(base+'?symbol='+symbol+'USDT&interval='+encodeURIComponent(interval)+'&limit='+limit,{signal:c.signal,cache:'no-store'})}finally{clearTimeout(t)}if(!r.ok)throw Error('HTTP '+r.status);let x=await r.json();if(!Array.isArray(x)||x.length<Math.min(12,limit))throw Error('データ形式エラー');return x}catch(e){error=e}}throw error}
 function chartLine(id, values, stroke, opts={}){const el=$(id),ctx=el.getContext('2d'),w=el.width,h=el.height;ctx.clearRect(0,0,w,h);const top=18,bottom=35,usable=h-top-bottom;const lo=Math.min(...values),hi=Math.max(...values),span=hi-lo||1;ctx.strokeStyle='#304860';ctx.lineWidth=1;for(let i=0;i<4;i++){let y=top+i*usable/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.beginPath();values.forEach((v,i)=>{const x=8+i*(w-16)/Math.max(1,values.length-1),y=top+(hi-v)/span*usable;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();if(opts.bars){const d=opts.bars.slice(-55),peak=Math.max(1,...d.map(Math.abs)),bw=w/d.length;d.forEach((v,i)=>{ctx.fillStyle=v>=0?'#55c69e':'#f17c86';const bh=Math.abs(v)/peak*22;ctx.fillRect(i*bw,h-3-bh,Math.max(1,bw-2),bh)})}else{ctx.fillStyle='#b5c8dd';ctx.font='18px sans-serif';ctx.fillText('$'+fmt(hi),10,18);ctx.fillText('$'+fmt(lo),10,h-8)}}
-function draw(ds){let sum=0;lastCvdSeries=ds.map(v=>(sum+=v));chartLine('graph',lastCvdSeries,'#f5cf76',{bars:ds});paintSwingMarks('graph',lastCvdSeries,'cv')} 
-function paintSwingMarks(id,values,mode){
- if(!values.length||!swingMarks.length)return;
- const el=$(id),ctx=el.getContext('2d'),w=el.width,h=el.height,top=18,usable=h-top-35;
- const live=mode==='price'&&lastTickPrice!==null&&Date.now()-lastTickAt<=15000?lastTickPrice:null;
- const lo=Math.min(...values,...(mode==='price'?lastChartRows.map(x=>x.low):[]),...(live===null?[]:[live]));
- const hi=Math.max(...values,...(mode==='price'?lastChartRows.map(x=>x.high):[]),...(live===null?[]:[live]));
- const span=hi-lo||1,px=i=>8+i*(w-16)/Math.max(1,values.length-1),py=v=>top+(hi-v)/span*usable;
- ctx.save();ctx.textAlign='center';
- for(const mark of swingMarks){
-   const active=selectedSignal===null||selectedSignal===mark.id;
-   const positive=mark.kind==='強気',color=positive?'#70e6b1':'#ff7f91';
-   const y1=mode==='price'?(positive?lastChartRows[mark.i].low:lastChartRows[mark.i].high):lastCvdSeries[mark.ci];
-   const y2=mode==='price'?(positive?lastChartRows[mark.j].low:lastChartRows[mark.j].high):lastCvdSeries[mark.cj];
-   const x1=px(mode==='price'?mark.i:mark.ci),x2=px(mode==='price'?mark.j:mark.cj),v1=py(y1),v2=py(y2);
-   ctx.globalAlpha=active?1:0.2;ctx.lineWidth=active?4:2;ctx.strokeStyle=color;ctx.fillStyle=color;
-   ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x1,v1);ctx.lineTo(x2,v2);ctx.stroke();
-   for(const [x,y] of [[x1,v1],[x2,v2]]){ctx.beginPath();ctx.arc(x,y,active?5:3,0,Math.PI*2);ctx.fill()}
-   if(active&&mode==='price'){
-     ctx.font='bold 16px sans-serif';
-     ctx.fillText(positive?'▲':'▼',x2,Math.max(20,Math.min(h-8,v2+(positive?23:-12))));
-   }
- }
- ctx.restore();
-}
+function draw(ds){let sum=0;lastCvdSeries=ds.map(v=>(sum+=v));chartLine('graph',lastCvdSeries,'#f5cf76',{bars:ds})} 
 function drawPrice(a){lastPriceSeries=a.map(x=>x.close);paintPriceChart()}
 function paintPriceChart(){if(!lastPriceSeries||!lastPriceSeries.length)return;
  const el=$('pricegraph'),ctx=el.getContext('2d'),values=lastPriceSeries,w=el.width,h=el.height,top=18,bottom=35,usable=h-top-bottom;
@@ -37,163 +13,7 @@ function paintPriceChart(){if(!lastPriceSeries||!lastPriceSeries.length)return;
  ctx.fillStyle='#b5c8dd';ctx.font='18px sans-serif';ctx.fillText('$'+fmt(hi),10,18);ctx.fillText('$'+fmt(lo),10,h-8);
  if(live!==null){const y=top+(hi-live)/span*usable;ctx.save();ctx.setLineDash([9,7]);ctx.strokeStyle='#87e8cb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();ctx.restore();ctx.fillStyle='#87e8cb';ctx.beginPath();ctx.arc(w-9,y,6,0,2*Math.PI);ctx.fill();$('livechartstatus').textContent='● 約定価格 $'+fmt(live)+'（未確定）'}
  else {$('livechartstatus').textContent='ライブ価格待機中（確定足のみ）'}
- paintSwingMarks('pricegraph',values,'price');
-}
-function divergence(a){
- lastChartRows=a;
- const cv=[];let total=0;for(const row of a){total+=row.d;cv.push(total)}
- const settings={
-   high:{k:2,lookback:8,minGap:3,moves:{'5m':0.00015,'15m':0.0003,'1h':0.0006}},
-   standard:{k:3,lookback:5,minGap:4,moves:{'5m':0.0003,'15m':0.0005,'1h':0.001}},
-   strict:{k:4,lookback:3,minGap:5,moves:{'5m':0.0005,'15m':0.001,'1h':0.002}}
- }[sensitivity];
- const {k,lookback,minGap}=settings,maxGap=72,minMove=settings.moves[timeframe];
- $('sensdetail').textContent=({high:'高感度：左右2本・過去8点',standard:'標準：左右3本・過去5点',strict:'厳選：左右4本・過去3点'}[sensitivity])+'／最低価格変化 '+(minMove*100).toFixed(3)+'%';
- const lows=[],highs=[];
- for(let i=k;i<a.length-k;i++){
-   let isLow=true,isHigh=true;
-   for(let j=i-k;j<=i+k;j++){if(i===j)continue;if(a[j].low<=a[i].low)isLow=false;if(a[j].high>=a[i].high)isHigh=false}
-   if(isLow)lows.push(i);if(isHigh)highs.push(i);
- }
- const extrema=(from,to,low)=>{
-   let at=from;
-   for(let i=from+1;i<=to;i++)if(low?cv[i]<cv[at]:cv[i]>cv[at])at=i;
-   return at;
- };
- const candidates=[];
- for(const [points,kind] of [[lows,'強気'],[highs,'弱気']]){
-   for(let t=1;t<points.length;t++){
-     const j=points[t];
-     for(let u=Math.max(0,t-lookback);u<t;u++){
-       const i=points[u],gap=j-i;
-       if(gap<minGap||gap>maxGap)continue;
-       const p1=kind==='強気'?a[i].low:a[i].high,p2=kind==='強気'?a[j].low:a[j].high;
-       const priceMove=Math.abs(p2-p1)/p1;
-       if(priceMove<minMove)continue;
-       const half=Math.max(2,Math.min(8,Math.floor(gap/3)));
-       const confirmIndex=j+Math.max(k,half);
-       if(confirmIndex>=a.length)continue;
-       const ci=extrema(Math.max(0,i-half),i+half,kind==='強気');
-       const cj=extrema(j-half,j+half,kind==='強気');
-       if(ci>=cj)continue;
-       const cvMove=cv[cj]-cv[ci];
-       const yes=kind==='強気'?p2<p1&&cvMove>0:p2>p1&&cvMove<0;
-       if(yes)candidates.push({kind,i,j,ci,cj,id:kind+'-'+a[i].t+'-'+a[j].t,priceMove,cvMove,confirmIndex});
-     }
-   }
- }
- // Keep one comparison per direction and second swing to avoid crowded overlapping lines.
- const byEnd=new Map();
- for(const m of candidates){
-   const key=m.kind+'-'+m.j,old=byEnd.get(key);
-   const score=m.priceMove*Math.abs(m.cvMove);
-   if(!old||score>old.priceMove*Math.abs(old.cvMove))byEnd.set(key,m);
- }
- const found=[...byEnd.values()];
- found.sort((x,y)=>x.confirmIndex-y.confirmIndex);
- // Same-direction signals within a 12-bar window form one episode.
- // The first signal is retained as the representative; later signals are confirmations.
- const episodes=[];
- for(const m of found){
-   const prior=episodes.length?episodes[episodes.length-1]:null;
-   if(prior&&prior.kind===m.kind&&m.confirmIndex-prior.lastConfirm<=12){
-     prior.extra++;prior.lastConfirm=m.confirmIndex;prior.members.push(m);
-   }else{
-     episodes.push({...m,extra:0,lastConfirm:m.confirmIndex,members:[m]});
-   }
- }
- const horizon=12;
- // All entry candidates use only candles available after signal confirmation.
- // B/C execute at the NEXT candle open following a fully closed confirmation candle.
- const entryCandidate=(m,mode)=>{
-   const first=m.confirmIndex+1,bull=m.kind==='強気';
-   if(first>=a.length)return null;
-   if(mode==='A')return {index:first,price:a[first].open};
-   for(let t=first;t<a.length-1&&t<=m.confirmIndex+12;t++){
-     if(mode==='B'){
-       if(t<first+1)continue;
-       const positive=x=>bull?a[x].close>a[x].open:a[x].close<a[x].open;
-       if(positive(t)&&positive(t-1))return {index:t+1,price:a[t+1].open};
-     }else if(mode==='C'){
-       if(t<first+2)continue;
-       const past=a.slice(Math.max(first,t-3),t);
-       const level=bull?Math.max(...past.map(x=>x.high)):Math.min(...past.map(x=>x.low));
-       if(bull?a[t].close>level:a[t].close<level)return {index:t+1,price:a[t+1].open};
-     }
-   }
-   return null;
- };
- const entryPerformance=(m,mode)=>{
-   const e=entryCandidate(m,mode);
-   if(!e)return null;
-   const end=Math.min(a.length-1,e.index+horizon-1),window=a.slice(e.index,end+1);
-   const best=Math.max(...window.map(x=>x.high)),worst=Math.min(...window.map(x=>x.low));
-   const bull=m.kind==='強気';
-   return {entry:e.price,mfe:(bull?best-e.price:e.price-worst)/e.price*100,
-     mae:(bull?e.price-worst:best-e.price)/e.price*100,
-     complete:end===e.index+horizon-1};
- };
- const performance=m=>{
-   const start=m.confirmIndex+1;
-   if(start>=a.length)return {pending:true};
-   const entry=a[start].close; // proxy: first fully available close after confirmation
-   const end=Math.min(a.length-1,start+horizon-1);
-   const window=a.slice(start,end+1);
-   const best=Math.max(...window.map(x=>x.high)),worst=Math.min(...window.map(x=>x.low));
-   const bull=m.kind==='強気';
-   return {pending:false,entry,mfe:(bull?best-entry:entry-worst)/entry*100,
-     mae:(bull?entry-worst:best-entry)/entry*100,
-     complete:end===start+horizon-1,
-     endTime:a[end].t+({'5m':300000,'15m':900000,'1h':3600000}[timeframe]||300000)};
- };
 
- swingMarks=episodes.slice(-6);
- if(selectedSignal!==null&&!swingMarks.some(x=>x.id===selectedSignal))selectedSignal=null;
- const recent=episodes.filter(x=>x.confirmIndex>=a.length-75).at(-1);
- const formatJST=ms=>new Date(ms).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
- const fmtTime=i=>formatJST(a[i].t);
- const durationMs={'5m':300000,'15m':900000,'1h':3600000}[timeframe]||300000;
- const confirmedAt=m=>formatJST(a[m.confirmIndex].t+durationMs); // 必要な右側の足が閉じた時刻
- const lo=lows.at(-1),hi=highs.at(-1);
- $('swingstatus').textContent='確定高値 '+(hi===undefined?'―':'$'+fmt(a[hi].high))+' / 安値 '+(lo===undefined?'―':'$'+fmt(a[lo].low));
- if(recent){
-   $('divsignal').textContent=recent.kind+'ダイバージェンス';
-   $('divsignal').className=recent.kind==='強気'?'green':'red';
-   $('divdetail').textContent='価格：'+fmtTime(recent.i)+' → '+fmtTime(recent.j)+' JST ／ CVD：'+fmtTime(recent.ci)+' → '+fmtTime(recent.cj)+' JST。価格変化 '+(recent.priceMove*100).toFixed(2)+'%。シグナル確定：'+confirmedAt(recent)+' JST（この時刻より前には判定不可）。';
- }else{
-   $('divsignal').textContent='直近の検出なし';$('divsignal').className='muted';
-   $('divdetail').textContent='直近75本で条件を満たす新しいダイバージェンスなし。過去の検出は履歴で確認できます。';
- }
- const history=swingMarks.slice().reverse(),hist=$('divhistory');
- const stats=episodes.map(m=>({m,p:performance(m)}));
- const done=stats.filter(x=>!x.p.pending&&x.p.complete);
- const avg=(arr,key)=>arr.length?(arr.reduce((sum,x)=>sum+x.p[key],0)/arr.length).toFixed(2)+'%':'―';
- const panel=$('divstats');
- if(panel){
-   const comparisons=['A','B','C'].map(mode=>{
-     const eligible=episodes.filter(m=>m.confirmIndex+25<a.length);
-     const results=eligible.map(m=>entryPerformance(m,mode)).filter(r=>r&&Number.isFinite(r.entry));
-     const completed=results.filter(r=>r.complete&&Number.isFinite(r.mfe)&&Number.isFinite(r.mae));
-     const mean=key=>completed.length?(completed.reduce((v,r)=>v+r[key],0)/completed.length).toFixed(2)+'%':'―';
-     return '<tr><td>'+mode+'</td><td>'+results.length+'/'+eligible.length+'</td><td>+'+mean('mfe')+'</td><td>−'+mean('mae')+'</td></tr>';
-   }).join('');
-   panel.innerHTML='<strong>エントリー方法の比較（試験集計）</strong>'+
-     '<div style="margin:6px 0">A：判定後の次足始値 ／ B：判定後の同方向2連続陽線・陰線確定→次足始値 ／ C：直近3本の高値・安値を終値突破→次足始値</div>'+
-     '<table style="width:100%;font-size:12px;text-align:right;border-collapse:collapse"><thead><tr><th>方式</th><th>発生/対象</th><th>平均最大順行</th><th>平均最大逆行</th></tr></thead><tbody>'+comparisons+'</tbody></table>'+
-     '<div style="margin-top:7px">各エントリー後12本を集計。未完了は平均から除外。比較対象は判定後25本以上経過した検出のみ。B/Cは判定後12本以内に条件成立しなければ見送り。</div>'+
-     '<div style="margin-top:6px">最大順行・逆行は到達順序を考慮しないため勝率や利益ではありません。手数料・スリッページ・ストップ未考慮。各方式の母数が少ない場合は評価不可。</div>';
- }
-
- hist.innerHTML=history.length?'<strong>検出履歴（JST）</strong>'+history.map((m,i)=>{
-   const p=performance(m);
-   const perf=p.pending?'判定後の足待ち':'参考価格 $'+fmt(p.entry)+' ／ 最大順行 +'+p.mfe.toFixed(2)+'%・最大逆行 −'+p.mae.toFixed(2)+'%'+(p.complete?'':'（集計途中）');
-   return '<button type="button" data-div="'+i+'" style="display:block;width:100%;margin-top:6px;padding:8px;text-align:left;border:1px solid #3c546c;border-radius:10px;background:'+(selectedSignal===m.id?'#31536a':'#20374e')+';color:'+(m.kind==='強気'?'#70e6b1':'#ff8791')+'">'+(m.kind==='強気'?'▲':'▼')+' '+m.kind+'　'+fmtTime(m.i)+' → '+fmtTime(m.j)+'<div style="font-size:12px;margin-top:4px">判定可能：'+confirmedAt(m)+' JST ／ 追加確認 '+m.extra+'回</div><div style="font-size:12px;margin-top:4px">'+perf+'</div></button>';
- }).join(''):'検出履歴：なし';
- hist.querySelectorAll('[data-div]').forEach(btn=>btn.onclick=()=>{
-   const m=history[Number(btn.dataset.div)];selectedSignal=selectedSignal===m.id?null:m.id;
-   divergence(a);
- });
- draw(a.map(x=>x.d));paintPriceChart();
 }
 // Live Binance Spot trade stream: a trade tick is the last traded price, not a bid/ask quote.
 function closeTick(){tickSerial++;if(tickRetry){clearTimeout(tickRetry);tickRetry=null}if(tickSocket){const old=tickSocket;tickSocket=null;old.onclose=null;old.onerror=null;old.onmessage=null;try{old.close()}catch(_){}}lastTickAt=0;lastTickPrice=null;paintPriceChart()}
@@ -206,7 +26,53 @@ function startTick(){closeTick();const serial=tickSerial,coin=symbol;const state
  }catch(_){state.textContent='ティック接続不可・確定5分足終値';tickRetry=setTimeout(()=>{if(serial===tickSerial)startTick()},5000)}}
 setInterval(()=>{if(lastTickAt&&Date.now()-lastTickAt>15000){$('tickstatus').textContent='約定価格が15秒以上未更新（通信を確認）';paintPriceChart()}},3000);
 
-async function update(){const token=++requestToken;busy=true;$('status').textContent='取得中';try{let [raw,raw5]=await Promise.all([get(timeframe,300),get('5m',40)]);if(token!==requestToken)return;const cut=Date.now()-5000;let a=raw.filter(r=>Number(r[6])<=cut).map(r=>({open:Number(r[1]),close:Number(r[4]),high:Number(r[2]),low:Number(r[3]),t:Number(r[0]),d:2*Number(r[9])-Number(r[5])}));if(a.length<20)throw Error('確定足不足');let ds=a.map(r=>r.d);$('symbol').textContent=symbol+'USDT · Binance現物';const m=timeframe==='5m'?5:timeframe==='15m'?15:60;
+function eaSignals(five, fifteen, hourly, daily) {
+ const done15=fifteen.filter(x=>x.t+900000<=Date.now()-5000);
+ const doneH=hourly.filter(x=>x.t+3600000<=Date.now()-5000);
+ const dayMap=new Map(daily.map(x=>[x.t,x]));
+ const events=[];
+ for(let j=2;j<done15.length;j++){
+  const a=done15[j-2],b=done15[j-1],c=done15[j];
+  if(!(a.d<0&&b.d<0&&c.d>0))continue;
+  const confirm=c.t+900000;
+  // The 5m pair must finish within 30 minutes after confirmation.
+  for(let k=1;k<five.length;k++){
+   const f0=five[k-1],f1=five[k],entryTime=f1.t+300000;
+   if(f0.t<confirm||entryTime>confirm+1800000)continue;
+   if(!(f0.close>f0.open&&f1.close>f1.open))continue;
+   const entry=five[k+1];
+   if(!entry||entry.t!==entryTime)continue;
+   const dayStart=Math.floor(entryTime/86400000)*86400000;
+   const prevDay=dayMap.get(dayStart-86400000);
+   if(!prevDay||!(prevDay.close<prevDay.open))continue;
+   const todays=five.filter(z=>z.t>=dayStart&&z.t<entryTime);
+   if(!todays.length||Math.min(...todays.map(z=>z.low))<prevDay.low)continue;
+   const closedH=doneH.filter(z=>z.t+3600000<=entryTime);
+   if(closedH.length<21)continue;
+   let ema=closedH[0].close,alpha=2/21;
+   for(let z=1;z<closedH.length;z++)ema=alpha*closedH[z].close+(1-alpha)*ema;
+   const lastH=closedH.at(-1);
+   if(!(entry.open>ema&&lastH.close>lastH.open))continue;
+   const cv=done15.filter(z=>z.t+900000<=entryTime).slice(-4);
+   if(cv.length!==4)continue;
+   const vol=cv.reduce((sum,z)=>sum+z.v,0);
+   const ratio=cv.reduce((sum,z)=>sum+z.d,0)/vol;
+   if(ratio<0.05)continue;
+   const sl=f0.low,risk=entry.open-sl;
+   if(risk<=0)continue;
+   events.push({time:entryTime,price:entry.open,sl,tp:entry.open+7*risk,ratio});
+   break;
+  }
+ }
+ const unique=[...new Map(events.map(e=>[e.time,e])).values()].sort((a,b)=>b.time-a.time);
+ const when=t=>new Date(t).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+ const el=$('eastatus'),details=$('eadetail'),history=$('eahistory');
+ const latest=unique[0],fresh=latest&&Date.now()-latest.time<=1800000;
+ el.textContent=fresh?'買い候補検出':'直近の買い候補なし';el.className=fresh?'green':'muted';
+ details.textContent=latest?'最新 '+when(latest.time)+' JST／買値目安 '+fmt(latest.price)+'／SL '+fmt(latest.sl)+'／RR7 '+fmt(latest.tp)+'／CVD比率 '+(latest.ratio*100).toFixed(2)+'%':'取得範囲内で全条件一致なし（判定は確定足のみ）';
+ history.innerHTML=unique.slice(0,8).map(e=>'<div style="padding:6px 0;border-top:1px solid #344b62">'+when(e.time)+' JST　買い候補　'+fmt(e.price)+'</div>').join('');
+}
+async function update(){const token=++requestToken;busy=true;$('status').textContent='取得中';try{let [raw,raw5,raw15,rawH,rawD]=await Promise.all([get(timeframe,300),get('5m',300),get('15m',120),get('1h',100),get('1d',5)]);if(token!==requestToken)return;const cut=Date.now()-5000;let a=raw.filter(r=>Number(r[6])<=cut).map(r=>({open:Number(r[1]),close:Number(r[4]),high:Number(r[2]),low:Number(r[3]),t:Number(r[0]),d:2*Number(r[9])-Number(r[5])}));if(a.length<20)throw Error('確定足不足');let ds=a.map(r=>r.d);$('symbol').textContent=symbol+'USDT · Binance現物';const m=timeframe==='5m'?5:timeframe==='15m'?15:60;
 const confirmed5=raw5.filter(r=>Number(r[6])<=cut);const b=confirmed5.map(r=>2*Number(r[9])-Number(r[5]));
 if(b.length<12)throw Error('5分足の確定データ不足');if(!lastTickAt||Date.now()-lastTickAt>15000){$('price').textContent='$'+fmt(Number(confirmed5.at(-1)[4]));$('tickstatus').textContent='確定5分足終値（ティック待機・切断時）'}const last5=Number(confirmed5.at(-1)[0]);if(cut-(last5+300000)>600000)throw Error('5分足データが古いため判定停止');
 const agg=n=>b.slice(-n).reduce((x,y)=>x+y,0);
@@ -216,13 +82,7 @@ $('delta').className='big '+(d15>0?'green':d15<0?'red':'');
 $('periodlabel').textContent=({'5m':'5分足','15m':'15分足','1h':'1時間足'})[timeframe]+'・直近約'+Math.round(a.length*m/60)+'時間';
 set('five',d5);set('fifteen',d15);set('hour',d60);
 const p=agg(3),prev=b.slice(-6,-3).reduce((x,y)=>x+y,0);
-$('change').textContent=prev<=0&&p>0?'売り→買い転換':prev>=0&&p<0?'買い→売り転換':'転換なし';$('detail').textContent='直近の確定済み5分足3本（15分）：'+fmt(p)+' '+symbol+' / その前の3本：'+fmt(prev)+' '+symbol+'。チャート時間足に依存せず判定。';draw(ds);drawPrice(a);divergence(a);$('status').textContent='接続OK';$('time').textContent=new Date().toLocaleTimeString('ja-JP')}catch(e){if(token!==requestToken)return;$('status').textContent='取得失敗';$('detail').textContent='データ取得不可：'+e.message;$('change').textContent='判定不可';$('divsignal').textContent='判定不可';$('divdetail').textContent='データ取得失敗';$('delta').textContent='—';$('datatime').textContent='集計基準：取得失敗';$('audit').textContent='再取得して確認してください';['five','fifteen','hour'].forEach(id=>$(id).textContent='—')}finally{if(token===requestToken)busy=false}}
+$('change').textContent=prev<=0&&p>0?'売り→買い転換':prev>=0&&p<0?'買い→売り転換':'転換なし';$('detail').textContent='直近の確定済み5分足3本（15分）：'+fmt(p)+' '+symbol+' / その前の3本：'+fmt(prev)+' '+symbol+'。チャート時間足に依存せず判定。';eaSignals(raw5.filter(r=>Number(r[6])<=cut).map(r=>({t:Number(r[0]),open:+r[1],high:+r[2],low:+r[3],close:+r[4]})),raw15.map(r=>({t:+r[0],open:+r[1],high:+r[2],low:+r[3],close:+r[4],v:+r[5],d:2*(+r[9])-(+r[5])})),rawH.map(r=>({t:+r[0],open:+r[1],close:+r[4]})),rawD.map(r=>({t:+r[0],open:+r[1],low:+r[3],close:+r[4]})));lastChartRows=a;draw(ds);drawPrice(a);$('status').textContent='接続OK';$('time').textContent=new Date().toLocaleTimeString('ja-JP')}catch(e){if(token!==requestToken)return;$('status').textContent='取得失敗';$('detail').textContent='データ取得不可：'+e.message;$('change').textContent='判定不可';$('eastatus').textContent='判定不可';$('eadetail').textContent='データ取得失敗';$('delta').textContent='—';$('datatime').textContent='集計基準：取得失敗';$('audit').textContent='再取得して確認してください';['five','fifteen','hour'].forEach(id=>$(id).textContent='—')}finally{if(token===requestToken)busy=false}}
 document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{symbol=b.dataset.s;$('price').textContent='—';startTick();document.querySelectorAll('[data-s]').forEach(x=>x.classList.toggle('active',x===b));update()});document.querySelectorAll('[data-tf]').forEach(b=>b.onclick=()=>{timeframe=b.dataset.tf;document.querySelectorAll('[data-tf]').forEach(x=>x.classList.toggle('active',x===b));update()});$('refresh').onclick=update;startTick();update();setInterval(update,60000);
 
-document.querySelectorAll('[data-sens]').forEach(btn=>btn.addEventListener('click',()=>{
- sensitivity=btn.dataset.sens;
- document.querySelectorAll('[data-sens]').forEach(x=>x.classList.toggle('active',x===btn));
- selectedSignal=null;
- if(lastChartRows.length)divergence(lastChartRows);
-}));
 </script></body></html>
