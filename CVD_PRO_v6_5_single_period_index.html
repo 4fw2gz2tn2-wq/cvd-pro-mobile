@@ -1,0 +1,642 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101824"><title>CVD PRO v6.5 · Single period selector</title><style>*{box-sizing:border-box}body{margin:0;background:#0e1725;color:#e9f0fa;font:15px -apple-system,BlinkMacSystemFont,sans-serif}main{max-width:620px;margin:auto;padding:22px 16px}.muted{color:#a4b3c8;font-size:12px}.card{background:#17283c;border:1px solid #2a415b;border-radius:17px;padding:16px;margin:14px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.tabs{display:flex;gap:8px;margin-top:18px}button{background:#213a52;color:#fff;border:1px solid #42617d;border-radius:11px;padding:12px 18px;font-weight:bold;cursor:pointer;flex:1}.active{background:#237c68}.green{color:#6ee2af}.red{color:#ff8791}.big{font-size:23px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:15px}.stat{background:#23384d;text-align:center;padding:10px 1px;border-radius:10px;font-size:11px;min-width:0}.stat strong{display:block;margin-top:8px}canvas{width:100%;height:155px;display:block}.tf-tabs{margin:12px 0 8px}.tf-tabs button{padding:9px 2px;font-size:12px;min-width:0}.tf-tabs{gap:7px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.tf-tabs button{width:100%}.chart-title{font-size:12px;color:#bed0e5;margin-top:10px}.chart-div{border-top:1px solid #304860;margin-top:14px;padding-top:12px}.divergence-box{background:#142438;border:1px solid #304b63;border-radius:11px;padding:11px 12px;margin:10px 0 6px;font-size:12px;line-height:1.65}.divergence-box strong{font-size:13px}.divergence-entry{border-top:1px solid #304860;padding-top:7px;margin-top:7px}.divergence-entry:first-child{border:0;margin:0;padding:0}.divergence-box .bull{color:#6ee2af}.divergence-box .bear{color:#ff8791}.note{font-size:12px;color:#b0bfd0;line-height:1.7}
+.fold{border:1px solid #304b63;border-radius:12px;padding:12px;margin-top:12px;background:#142438}
+.fold summary{cursor:pointer;font-weight:700;color:#c8e4f4;list-style-position:inside}
+.fold[open] summary{margin-bottom:12px}
+.result-section{margin:16px 0 8px}
+.result-section h3{font-size:14px;margin:0 0 8px;color:#d5edf9}
+#eacompare table{min-width:310px}
+#eacompare th,#eacompare td{padding:8px 5px;border-bottom:1px solid #30465d}
+#eacompare th{color:#c2d7e9;font-weight:600}
+#eacompare tbody tr:nth-child(odd){background:#1d3246}
+#eadetail{background:#1c3546;padding:11px;border-radius:10px;margin:12px 0;color:#e2f3fa}
+#eaprogress{font-size:11px}
+
+/* Single period selector shared by order-flow summary, six-state monitor, and chart. */
+.stats .stat-choice{display:block;width:100%;padding:10px 1px;border:1px solid transparent;border-radius:10px;background:#23384d;color:#dce7f3;cursor:pointer;font:inherit;font-size:11px;font-weight:400;line-height:1.5;min-width:0}
+.stats .stat-choice strong{font-size:11px;font-weight:700}
+.stats .stat-choice.selected{background:#245a57;border-color:#70dfbd;box-shadow:inset 0 0 0 1px #70dfbd}
+.stats .stat-choice:focus-visible{outline:2px solid #a1e9d4;outline-offset:2px}
+.coin-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px}
+.coin-tabs button{min-width:0;padding:12px 4px;font-size:14px}
+@media(max-width:370px){.coin-tabs button{font-size:13px;padding:10px 3px}}
+
+/* Always-visible, closed-candle six-state monitor. */
+.flow-card{border-color:#42617d;margin-top:12px}
+.flow-heading{font-size:13px;color:#c5d8e8;font-weight:700}
+.flow-main{font-size:19px;font-weight:800;line-height:1.4;margin:8px 0 5px}
+.flow-card[data-tone="up"]{border-color:#317e70}
+.flow-card[data-tone="down"]{border-color:#a35465}
+.flow-card[data-tone="wait"]{border-color:#a28a53}
+.flow-card[data-tone="neutral"]{border-color:#42617d}
+.flow-main.up{color:#6ee2af}.flow-main.down{color:#ff8791}.flow-main.wait{color:#f5cf76}
+.flow-metrics{display:flex;gap:10px;flex-wrap:wrap;margin:9px 0;font-size:12px;color:#cbd9e8}
+.flow-metrics span{padding:5px 8px;background:#21384d;border-radius:7px}
+.flow-guide{font-size:12px;color:#c5d2df;line-height:1.6}
+.flow-tiny{font-size:11px;color:#91a7bb;margin-top:7px}
+.flow-toast{position:fixed;z-index:30;bottom:90px;left:50%;transform:translateX(-50%);max-width:min(92vw,460px);width:max-content;background:#213a52;color:#e9f0fa;border:1px solid #70dfbd;padding:12px 15px;border-radius:12px;box-shadow:0 8px 28px #0009;font-size:13px;display:none}
+</style><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"></head><body><main><div class="row"><div><div class="big">CVD <span class="green">PRO</span> <span style="font-size:12px;color:#6ee2af;border:1px solid #6ee2af;border-radius:6px;padding:4px">v6.5 / 期間統一</span></div><div class="muted">BTC / ETH / SOL / XRP / WLD / DOGE · 裁量トレード補助</div></div><div id="status" class="muted">接続待ち</div></div><div class="tabs coin-tabs"><button class="active" data-s="BTC">BTC</button><button data-s="ETH">ETH</button><button data-s="SOL">SOL</button><button data-s="XRP">XRP</button><button data-s="WLD">WLD</button><button data-s="DOGE">DOGE</button></div><div class="card"><div class="row"><div><div class="muted" id="symbol">BTCUSDT · Binance現物</div><div class="big" id="price">—</div><div class="muted" id="tickstatus">ティック接続中…</div></div><div style="text-align:right"><div class="muted"><span id="deltaperiod">直近1時間</span>の成行差分（確定足）</div><div class="big" id="delta">—</div></div></div><div class="stats"><button type="button" class="stat stat-choice selected" data-delta="1h" aria-pressed="true">1時間<strong id="stat_1h">—</strong></button><button type="button" class="stat stat-choice" data-delta="4h" aria-pressed="false">4時間<strong id="stat_4h">—</strong></button><button type="button" class="stat stat-choice" data-delta="24h" aria-pressed="false">24時間<strong id="stat_24h">—</strong></button><button type="button" class="stat stat-choice" data-delta="today" aria-pressed="false">当日<strong id="stat_today">—</strong></button><button type="button" class="stat stat-choice" data-delta="week" aria-pressed="false">今週<strong id="stat_week">—</strong></button><button type="button" class="stat stat-choice" data-delta="month" aria-pressed="false">当月<strong id="stat_month">—</strong></button></div><div class="muted" style="margin-top:9px">期間を選ぶと成行差分・価格反応・チャートが一緒に切り替わります。</div></div><section class="card flow-card" id="flowCard" data-tone="neutral" aria-live="polite"><div class="row"><strong class="flow-heading">現在の成行圧力 × 価格反応</strong><span class="muted" id="flowPeriod">直近1時間・確定足</span></div><div id="flowState" class="flow-main">判定データを取得中…</div><div class="flow-metrics"><span id="flowDelta">CVD —</span><span id="flowPrice">価格 —</span></div><div id="flowGuide" class="flow-guide">買い優勢・売り優勢と価格の方向を6分類します。</div><div id="flowUpdated" class="flow-tiny">確定5分足で判定／1分ごとに確認。通知は画面表示中の変化のみ。</div></section><div id="flowToast" class="flow-toast" role="status"></div><div class="card"><div id="datatime" class="muted">集計基準：取得待ち</div><div id="audit" class="muted" style="margin-top:6px">上部の期間・判定・下部チャートは連動（確定足）</div></div><div class="card"><div class="row"><strong>価格 × CVD</strong><span class="muted" id="periodlabel">直近1時間（5分足）</span></div><div class="chart-title">価格＋累積CVD（重ね表示）・現在の約定価格 <span class="muted" id="livechartstatus">ライブ価格待機中</span></div><canvas id="pricegraph" width="700" height="365" style="height:215px"></canvas><div class="divergence-box"><strong>成行圧力 × 価格の反応</strong><div id="divergenceStatus" class="muted" aria-live="polite">確定足の成行圧力を解析中…</div><div class="muted" style="margin-top:6px">直近3本の確定足で成行買い・売りの偏りと価格の追随を比較。買い圧が強くても価格が上がらない場合は指値売りによる吸収の可能性あり。売り圧が強くても価格が下がらない場合は指値買いによる吸収の可能性あり。検出基準は暫定・勝率未検証。</div></div><div class="chart-title">左：CVD　右：価格（USDT）＋始値比（%）　下：日時（日本時間）</div><canvas id="graph" width="700" height="245" style="display:none"></canvas><div class="muted">水色：確定足終値　水色の点線・丸：現在の約定価格（未確定）　黄色：累積CVD　赤・緑：各足の成行差分。1時間・4時間・24時間＝直近の確定5分足を使用。当日＝毎朝9時、今週＝月曜9時、当月＝1日9時（日本時間）。各表示期間の最初の足の始値を共通起点とし、CVDはその時点を0として累積。価格は始値比（%）で自動拡大し、CVDは独立した倍率で表示。</div></div><div id="hidden-analysis" style="display:none"><div class="card"><div class="row"><strong>EA 2.5｜シグナル検証</strong><strong id="eastatus" class="muted">判定待ち</strong></div><details class="fold"><summary>売買条件を確認</summary><p class="note">15分CVD「負・負・正」→30分以内の5分陽線2本。前日陰線／当日安値維持／H1 EMA20上／直近確定15分足4本のCVD比率+5%以上／確定H1陽線。SLは陽線1本目の安値、参考TPはRR7。EA 2.5原型：反転確定時刻も対象、最初の陽線2本のみ判定（不合格なら同じ反転で再試行しない）。</p></details><div id="eadetail" class="note">履歴を読み込みます…</div><div class="tabs tf-tabs" id="historyperiod" style="margin:10px 0"><button data-days="30">30日</button><button data-days="90" class="active">90日</button><button data-days="180">180日</button></div><p class="muted" style="margin:6px 0">標準90日。180日は取得に時間がかかります。</p><div class="row" style="margin:10px 0"><button id="eareload" type="button">選択期間を再取得</button><span id="eaprogress" class="muted">未取得</span></div><section class="result-section"><h3>RR・SL幅の比較</h3><div id="eacompare" class="note"></div></section><details class="fold"><summary>取引履歴を見る</summary><div id="eahistory" class="note"></div></details><details class="fold"><summary>検証の詳細・診断</summary><div id="eadiag" class="note"></div></details><details class="fold"><summary>1分足で精密検証（通信量大）</summary><div class="row" style="margin:12px 0"><button id="ea1m" type="button">全件1分足で検証</button><span id="ea1mstatus" class="muted">未実施</span></div><div id="ea1mresult" class="note"></div></details><p class="muted">Binance現物の買い候補表示。MT5のブローカー価格・約定条件と一致する保証はありません。ETHはBTCでの検証成績を適用できません。</p></div><div class="card"><div class="row"><strong>売買圧力の変化</strong><strong id="change">—</strong></div><p id="detail" class="note">データを取得しています…</p><div class="row"><button id="refresh">更新する</button><span class="muted" id="time">—</span></div></div><div class="card" style="display:none"><strong>BTC・ETH エントリー通知（iPhone Web Push）</strong>
+<p class="note">ホーム画面に追加したCVD PROから通知を許可してください。GitHub Pagesだけでは自動配信できず、Cloudflare Workerの公開設定が必要です。</p>
+<label class="note">通知サーバーURL（Cloudflare Worker）</label><input id="pushurl" type="url" placeholder="https://cvdpro-push.あなたのID.workers.dev" style="width:100%;padding:12px;background:#0e1725;color:white;border:1px solid #42617d;border-radius:9px;margin:8px 0">
+<div class="row"><button id="pushsave">URL保存</button><button id="pushon">通知を有効にする</button></div>
+<p id="pushstatus" class="note">未設定。iPhoneではSafariの共有メニューから「ホーム画面に追加」が必要です。</p></div><details class="card fold"><summary>接続診断</summary><p id="jscheck" class="note">JavaScript: 未実行</p><button id="testjs" type="button">JavaScriptをテスト</button><p class="note">データが表示されない場合は、接続状態とエラー文をスクリーンショットで送ってね。</p></details><details class="card fold"><summary>データの注意点</summary><p class="note">Binance現物5分足の総出来高と成行買い数量から、成行差分＝2×成行買い数量−総出来高を計算。表示区間内で累積しています。MEXC先物のCVDとは異なります。確定足のみで判定し、1分ごとに再取得します。接続に失敗した場合はデモデータに切り替えません。期間選択は上部の6ボタンに統一し、成行差分・6分類・価格×CVDチャートが連動します。1時間・4時間・24時間・当日は確定5分足、今週は確定15分足、当月は確定1時間足を使い、同じ足の価格変化と成行差分で6分類します。チャート時間足を変更すると、チャートの取得間隔と累積CVDの起点は変わります。時間足間のCVD絶対値は直接比較できません。上部価格と価格チャート右端の水色点線・丸はBinance現物の約定ティックをWebSocketで受信します。点線は未確定の現在価格であり、確定足の終値ラインやCVDには加算しません。切断時は確定5分足終値にフォールバックし、ティック接続状況を明示します。約定価格は板のBid/Askではありません。画面を閉じると通信が停止することがあります。バックグラウンド通知には通知サーバーのデプロイと購読が必要です。成行圧力と価格の乖離は確定足3本で判定し、閾値は暫定値です。指値注文の吸収は直接観測できず、勝率・期待値は未検証です。投資判断は価格やリスク管理と併用してください。</p></details></div></main><script>
+document.getElementById('jscheck').textContent='JavaScript: 動作中 / v6.5';document.getElementById('testjs').onclick=()=>{document.getElementById('jscheck').textContent='JavaScript: ボタン動作OK '+new Date().toLocaleTimeString('ja-JP')};let deltaPeriod='1h';let symbol='BTC',timeframe='1h',sensitivity='standard',busy=false,requestToken=0;let snapshot=null;let lastPriceSeries=null,lastChartPaint=0;let swingMarks=[];let lastPressureEvents=[];let lastCvdSeries=[];let lastChartRows=[];let selectedSignal=null;let tickSocket=null,tickRetry=null,tickSerial=0,lastTickAt=0,lastTickPrice=null;const tfMs={'5m':300000,'15m':900000,'1h':3600000,'4h':14400000,'1d':86400000};const $=id=>document.getElementById(id);const urls=['https://data-api.binance.vision/api/v3/klines','https://api.binance.com/api/v3/klines'];const fmt=x=>Number(x).toLocaleString('en-US',{maximumFractionDigits:2});
+const fmtPrice=x=>{const v=Math.abs(Number(x));const digits=v>=1000?2:v>=10?3:v>=1?4:v>=.1?5:6;return Number(x).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:digits})};const sign=x=>x>0?'買い優勢':x<0?'売り優勢':'中立';const deltaConfig={'1h':{label:'1時間'},'4h':{label:'4時間'},'24h':{label:'24時間'},today:{label:'当日（9時〜）'},week:{label:'今週（月曜9時〜）'},month:{label:'当月（1日9時〜）'}};
+function syncPeriodButtons(){
+ document.querySelectorAll('[data-delta]').forEach(b=>{const on=b.dataset.delta===timeframe;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',String(on))});
+ $('deltaperiod').textContent=(['1h','4h','24h'].includes(timeframe)?'直近':'')+deltaConfig[timeframe].label;
+ $('flowPeriod').textContent=deltaConfig[timeframe].label+'・確定足';
+}
+function showSelectedDelta(){
+ syncPeriodButtons();
+ const value=snapshot&&snapshot.symbol===symbol&&snapshot.period===timeframe?snapshot.delta:null;
+ $('delta').textContent=Number.isFinite(value)?(value>0?'+':'')+fmt(value)+' '+symbol:'取得中…';
+ $('delta').className='big '+(value>0?'green':value<0?'red':'');
+ document.querySelectorAll('[data-delta]').forEach(b=>{
+   const v=b.querySelector('strong');if(v)v.textContent=b.dataset.delta===timeframe&&Number.isFinite(value)?sign(value):'タップして表示';
+ });
+}
+function selectPeriod(period){
+ if(!chartPeriods[period])return;
+ timeframe=deltaPeriod=period;snapshot=null;confirmedFlowRows=[];
+ syncPeriodButtons();showSelectedDelta();
+ $('flowState').textContent='期間データを取得中…';$('flowDelta').textContent='成行差分 —';$('flowPrice').textContent='価格 —';
+ $('periodlabel').textContent='期間データを取得中…';
+ update();
+}
+// JST 09:00 is 00:00 UTC. UTC date boundaries therefore match the requested JST 09:00 boundaries.
+const chartPeriods={'1h':{interval:'5m',rollingCount:12,label:'直近1時間'},'4h':{interval:'5m',rollingCount:48,label:'直近4時間'},'24h':{interval:'5m',rollingCount:288,label:'直近24時間'},today:{interval:'5m',label:'当日・9時から'},week:{interval:'15m',label:'今週・月曜9時から'},month:{interval:'1h',label:'当月・1日9時から'}};
+function chartPeriodStart(which,now=Date.now()){
+ const d=new Date(now),year=d.getUTCFullYear(),month=d.getUTCMonth(),day=d.getUTCDate();
+ const utcDay=Date.UTC(year,month,day);
+ if(which==='today')return utcDay;
+ if(which==='week')return utcDay-((d.getUTCDay()+6)%7)*86400000;
+ if(which==='month')return Date.UTC(year,month,1);
+ throw Error('期間指定エラー');
+}
+async function getChartPeriod(which,coin){
+ const start=chartPeriodStart(which),interval=chartPeriods[which].interval;
+ let error;
+ for(const base of urls){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+  try{
+   const url=base+'?symbol='+coin+'USDT&interval='+interval+'&startTime='+start+'&limit=1000';
+   const response=await fetch(url,{signal:controller.signal,cache:'no-store'});
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const result=await response.json();
+   if(!Array.isArray(result))throw Error('期間データ形式エラー');
+   return {raw:result,start,interval};
+  }catch(e){error=e}finally{clearTimeout(timer)}
+ }
+ throw error||Error('期間データを取得できません');
+}
+async function get(interval=timeframe,limit=300){let error;for(let base of urls){try{const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);let r;try{r=await fetch(base+'?symbol='+symbol+'USDT&interval='+encodeURIComponent(interval)+'&limit='+limit,{signal:c.signal,cache:'no-store'})}finally{clearTimeout(t)}if(!r.ok)throw Error('HTTP '+r.status);let x=await r.json();if(!Array.isArray(x)||x.length<Math.min(12,limit))throw Error('データ形式エラー');return x}catch(e){error=e}}throw error}
+async function getHistory(interval, days=30){
+ const ms={'5m':300000,'15m':900000,'1h':3600000,'1d':86400000}[interval];
+ const cutoff=Date.now()-days*86400000;
+ let end=Date.now(),all=[],lastError=null;
+ for(let page=0;page<Math.ceil(days*86400000/ms/1000)+2;page++){
+  let data=null;
+  for(const base of urls){
+   try{
+    const c=new AbortController(),timer=setTimeout(()=>c.abort(),14000);
+    try{
+     const q='?symbol='+symbol+'USDT&interval='+interval+'&limit=1000&endTime='+Math.floor(end);
+     const r=await fetch(base+q,{signal:c.signal,cache:'no-store'});
+     if(!r.ok)throw Error('HTTP '+r.status);
+     const x=await r.json();if(!Array.isArray(x))throw Error('履歴データ形式エラー');
+     data=x;break;
+    }finally{clearTimeout(timer)}
+   }catch(e){lastError=e}
+  }
+  if(!data)throw lastError||Error('履歴取得失敗');
+  if(!data.length)break;
+  all.push(...data);
+  const earliest=Number(data[0][0]);
+  if(earliest<=cutoff||data.length<1000)break;
+  end=earliest-1;
+ }
+ const seen=new Map(all.filter(r=>Number(r[0])>=cutoff-86400000).map(r=>[Number(r[0]),r]));
+ return [...seen.values()].sort((a,b)=>Number(a[0])-Number(b[0]));
+}
+function chartLine(id, values, stroke, opts={}){const el=$(id),ctx=el.getContext('2d'),w=el.width,h=el.height;ctx.clearRect(0,0,w,h);const top=18,bottom=35,usable=h-top-bottom;const lo=Math.min(...values),hi=Math.max(...values),span=hi-lo||1;ctx.strokeStyle='#304860';ctx.lineWidth=1;for(let i=0;i<4;i++){let y=top+i*usable/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.beginPath();values.forEach((v,i)=>{const x=8+i*(w-16)/Math.max(1,values.length-1),y=top+(hi-v)/span*usable;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();if(opts.bars){const d=opts.bars.slice(-55),peak=Math.max(1,...d.map(Math.abs)),bw=w/d.length;d.forEach((v,i)=>{ctx.fillStyle=v>=0?'#55c69e':'#f17c86';const bh=Math.abs(v)/peak*22;ctx.fillRect(i*bw,h-3-bh,Math.max(1,bw-2),bh)})}else{ctx.fillStyle='#b5c8dd';ctx.font='18px sans-serif';ctx.fillText('$'+fmt(hi),10,18);ctx.fillText('$'+fmt(lo),10,h-8)}}
+function draw(ds){let sum=0;lastCvdSeries=ds.map(v=>(sum+=v));paintPriceChart()} 
+function drawPrice(a){lastPriceSeries=a.map(x=>x.close);paintPriceChart()}
+// Six exhaustive directional combinations for nonzero net taker flow.
+// Price flatness is determined from PRIOR candles, never from future data.
+const flowMeta={
+ buyUp:{name:'買い優勢 × 価格上昇',tone:'up',guide:'成行買いが価格上昇に追随。上昇継続候補だが追い買いは慎重に。'},
+ buyFlat:{name:'買い優勢 × 価格横ばい',tone:'wait',guide:'買い吸収候補。指値売りに抑えられている可能性があるため上抜け待ち。'},
+ buyDown:{name:'買い優勢 × 価格下落',tone:'down',guide:'買い吸収・下落警戒。成行買いが入っても価格が下がるためロング慎重。'},
+ sellDown:{name:'売り優勢 × 価格下落',tone:'down',guide:'売り主導の下落候補。新規ロング見送り・保有分の利確検討。'},
+ sellFlat:{name:'売り優勢 × 価格横ばい',tone:'wait',guide:'売り吸収候補。指値買いの支えの可能性はあるが反発確認待ち。'},
+ sellUp:{name:'売り優勢 × 価格上昇',tone:'up',guide:'売り吸収・上昇候補。売りを受け止める強さがある可能性。'}
+};
+let confirmedFlowRows=[],lastFlowStateBySymbol={},lastFlowPeriodBySymbol={},flowToastTimer=null;
+function showFlow(){
+ const card=$('flowCard'),rows=confirmedFlowRows;
+ syncPeriodButtons();
+ if(!Array.isArray(rows)||rows.length<1){
+  card.dataset.tone='neutral';$('flowState').textContent='判定待ち';$('flowState').className='flow-main';
+  $('flowDelta').textContent='成行差分 —';$('flowPrice').textContent='価格 —';
+  $('flowGuide').textContent='選択期間の確定足を取得しています。';return;
+ }
+ // Same exact closed candles and same period as the displayed chart and headline delta.
+ const delta=rows.reduce((v,r)=>v+r.d,0),open=rows[0].open,close=rows.at(-1).close;
+ if(!(open>0)||!Number.isFinite(close)||!Number.isFinite(delta))return;
+ const pricePct=(close/open-1)*100;
+ // Indicative sideways thresholds scale by elapsed period, not the selected candle resolution.
+ const baseMs=900000,elapsed=Math.max(300000,rows.at(-1).t+({'5m':300000,'15m':900000,'1h':3600000}[chartPeriods[timeframe].interval]||300000)-rows[0].t);
+ const flatThreshold=Math.max(.035,Math.min(2.5,.035*Math.sqrt(elapsed/baseMs)));
+ const side=delta>0?'buy':delta<0?'sell':'none';
+ const priceDir=pricePct>flatThreshold?'Up':pricePct< -flatThreshold?'Down':'Flat';
+ const kind=side==='none'?null:side+priceDir;
+ const meta=flowMeta[kind];card.dataset.tone=meta?meta.tone:'neutral';
+ $('flowState').textContent=meta?meta.name:'成行差分ゼロ × 価格'+(priceDir==='Up'?'上昇':priceDir==='Down'?'下落':'横ばい')+'（判定保留）';
+ $('flowState').className='flow-main '+(meta?meta.tone:'');
+ $('flowDelta').textContent='成行差分 '+(delta>0?'+':'')+fmt(delta)+' '+symbol;
+ $('flowPrice').textContent='価格 '+(pricePct>0?'+':'')+pricePct.toFixed(3)+'%';
+ $('flowGuide').textContent=meta?meta.guide:'成行差分がゼロのため6分類は保留。';
+ const lastMs=rows.at(-1).t+({'5m':300000,'15m':900000,'1h':3600000}[chartPeriods[timeframe].interval]||300000);
+ $('flowUpdated').textContent=new Date(lastMs).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})+' JST確定｜横ばい±'+flatThreshold.toFixed(3)+'%（暫定）｜1分ごとに再確認｜画面内通知のみ・勝率未検証';
+ const key=symbol+'_'+timeframe,prev=lastFlowStateBySymbol[key],last=lastFlowPeriodBySymbol[key];
+ if(prev&&prev!==kind&&last!==lastMs&&meta&&document.visibilityState==='visible'){
+  const toast=$('flowToast');toast.textContent=symbol+' '+deltaConfig[timeframe].label+'：'+meta.name;toast.style.display='block';
+  clearTimeout(flowToastTimer);flowToastTimer=setTimeout(()=>toast.style.display='none',6500);
+ }
+ lastFlowStateBySymbol[key]=kind;lastFlowPeriodBySymbol[key]=lastMs;
+}
+// Long-only order-flow observer. These are descriptive candidates, NOT buy/sell signals.
+// Uses only CLOSED candles, a 3-bar observation window, and prior-bar baselines.
+// Both the CVD imbalance and the price response are measured over the same 3 bars.
+function findPressureEvents(rows){
+ const out=[],win=3,refBars=12;
+ if(!rows||rows.length<win+6)return out;
+ for(let i=win+6-1;i<rows.length;i++){
+  const prior=rows.slice(Math.max(0,i-win-refBars+1),i-win+1);
+  const recent=rows.slice(i-win+1,i+1);
+  if(prior.length<6||recent.length!==win)continue;
+  const typicalDelta=prior.reduce((sum,r)=>sum+Math.abs(r.d),0)/prior.length;
+  const delta=recent.reduce((sum,r)=>sum+r.d,0);
+  const deltaThreshold=Math.max(1e-9,typicalDelta*win*1.5);
+  const p0=recent[0].open,p1=recent.at(-1).close;
+  if(!(p0>0))continue;
+  const pricePct=(p1/p0-1)*100;
+  const typicalPrice=prior.reduce((sum,r)=>sum+(r.open>0?Math.abs((r.close/r.open-1)*100):0),0)/prior.length;
+  const flatThreshold=Math.max(0.05,Math.min(0.25,typicalPrice*1.25));
+  const buyBars=recent.filter(r=>r.d>0).length;
+  const sellBars=recent.filter(r=>r.d<0).length;
+  let kind=null;
+  if(delta>=deltaThreshold&&buyBars>=2){
+   if(Math.abs(pricePct)<=flatThreshold)kind='buyAhead';
+   else if(pricePct < -flatThreshold)kind='buyBlocked';
+  }else if(delta<=-deltaThreshold&&sellBars>=2){
+   if(Math.abs(pricePct)<=flatThreshold)kind='sellAhead';
+   else if(pricePct>flatThreshold)kind='sellAbsorb';
+   else if(pricePct < -flatThreshold)kind='sellFollow';
+  }
+  if(!kind)continue;
+  // Consecutive overlapping 3-bar windows are one observation, not multiple independent hits.
+  if(out.length&&out.at(-1).kind===kind&&i-out.at(-1).i<=win){
+   out[out.length-1]={kind,i,time:rows[i].t,delta,pricePct,flatThreshold,deltaThreshold};
+  }else{
+   out.push({kind,i,time:rows[i].t,delta,pricePct,flatThreshold,deltaThreshold});
+  }
+ }
+ return out;
+}
+const pressureMeta={
+ buyAhead:{color:'#6ee2af',symbol:'▲',name:'買い圧増加・価格未追随',guide:'上抜け確認待ち（指値売り吸収にも注意）'},
+ buyBlocked:{color:'#ff8791',symbol:'▼',name:'買い吸収警戒',guide:'成行買いが優勢でも価格下落。新規ロング慎重'},
+ sellAhead:{color:'#f5cf76',symbol:'◆',name:'売り圧増加・価格横ばい',guide:'下抜け警戒。ただし指値買いの吸収もあり得る'},
+ sellAbsorb:{color:'#6ee2af',symbol:'▲',name:'売り吸収候補・価格上昇',guide:'反発の確認候補。ロング確定ではない'},
+ sellFollow:{color:'#ff8791',symbol:'▼',name:'売り圧優勢・価格下落',guide:'新規ロング見送り・保有分の利確検討'}
+};
+function showPressure(){
+ const el=$('divergenceStatus');
+ if(!lastChartRows.length){el.textContent='確定足の成行圧力を解析中…';return}
+ const fmtJst=t=>new Date(t).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+ const last=lastChartRows.at(-1),last3=lastChartRows.slice(-3);
+ const d=last3.reduce((sum,r)=>sum+r.d,0),pct=(last.close/last3[0].open-1)*100;
+ const current='<div class="divergence-entry"><strong>直近3本（確定足）</strong>　成行差分 <span class="'+(d>=0?'bull':'bear')+'">'+(d>0?'+':'')+fmt(d)+'</span> '+symbol+' ／ 価格 '+(pct>0?'+':'')+pct.toFixed(3)+'%<br><span class="muted">表示期間の足幅に連動。現時点の観測であり、将来の上昇・下落を保証しません。</span></div>';
+ const recent=lastPressureEvents.slice(-3).reverse();
+ const items=recent.map(e=>{const m=pressureMeta[e.kind];return '<div class="divergence-entry"><strong style="color:'+m.color+'">'+m.symbol+' '+m.name+'</strong>　'+fmtJst(e.time)+' JST（確定）<br><span class="muted">成行差分 '+(e.delta>0?'+':'')+fmt(e.delta)+' '+symbol+' ／ 価格 '+(e.pricePct>0?'+':'')+e.pricePct.toFixed(3)+'%<br>'+m.guide+'</span></div>'}).join('');
+ el.innerHTML=current+(items||'<div class="divergence-entry muted">この期間では強い偏りの候補なし</div>')+'<div class="muted" style="margin-top:7px">判定：直近3本の成行差分が、それ以前6〜12本の平均絶対差分×4.5以上、かつ3本中2本以上が同方向。価格横ばいは直前の値動きから算出（0.05〜0.25%）。暫定基準・勝率未検証。</div>';
+}
+function paintPriceChart(){
+ if(!lastPriceSeries||!lastPriceSeries.length||!lastChartRows.length)return;
+ const el=$('pricegraph'),ctx=el.getContext('2d'),w=el.width,h=el.height;
+ const left=105,right=w-115,top=32,bottom=h-57,usable=bottom-top,baseline=top+usable/2;
+ const rows=lastChartRows,n=rows.length,firstOpen=rows[0].open;
+ const pricePoints=[firstOpen,...rows.map(r=>r.close)];
+ const cvdPoints=[0,...lastCvdSeries];
+ const live=lastTickPrice!==null&&lastTickAt&&Date.now()-lastTickAt<=15000?lastTickPrice:null;
+ // Normalize the price series to percent change from the first candle OPEN.
+ // Do not include candle HIGH/LOW: occasional extreme wicks distort the axis,
+ // making WLD/DOGE price movement look flat despite visible close-to-close changes.
+ const pricePct=v=>(v/firstOpen-1)*100;
+ const pricePctPoints=pricePoints.map(pricePct);
+ const maxPricePct=Math.max(0.00001,...pricePctPoints.map(Math.abs),
+   ...(live===null?[]:[Math.abs(pricePct(live))]));
+ const maxCvdMove=Math.max(0.000001,...cvdPoints.map(v=>Math.abs(v)));
+ // Independent scales, same horizontal origin: 0% price and CVD=0.
+ const pxPerPct=(usable*0.46)/maxPricePct,pxPerCvd=(usable*0.46)/maxCvdMove;
+ const xAt=i=>left+i*(right-left)/n;
+ const yPrice=v=>baseline-pricePct(v)*pxPerPct;
+ const yCvd=v=>baseline-v*pxPerCvd;
+ ctx.clearRect(0,0,w,h);
+ ctx.textBaseline='middle';
+ ctx.font='19px -apple-system,BlinkMacSystemFont,sans-serif';
+ // Grid, left CVD labels, and right price labels.
+ for(let i=0;i<5;i++){
+  const y=top+i*usable/4;
+  ctx.strokeStyle='#304860';ctx.lineWidth=1;ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();
+  const pctAtY=(baseline-y)/pxPerPct;
+  const priceAtY=firstOpen*(1+pctAtY/100);
+  ctx.fillStyle='#b5c8dd';ctx.textAlign='left';ctx.fillText('$'+fmtPrice(priceAtY),right+8,y-8);
+  ctx.font='15px -apple-system,BlinkMacSystemFont,sans-serif';
+  ctx.fillStyle=pctAtY>0?'#6ee2af':pctAtY<0?'#ff8791':'#aebfd3';
+  ctx.fillText((pctAtY>0?'+':'')+pctAtY.toFixed(2)+'%',right+8,y+12);
+  ctx.font='19px -apple-system,BlinkMacSystemFont,sans-serif';
+  if(i%2===0){
+   const cvdAtY=(baseline-y)/pxPerCvd;
+   ctx.fillStyle='#f5cf76';ctx.textAlign='right';ctx.fillText(fmt(cvdAtY),left-8,y);
+  }
+ }
+ ctx.fillStyle='#f5cf76';ctx.textAlign='right';ctx.fillText('CVD',left-8,12);
+ ctx.fillStyle='#b5c8dd';ctx.textAlign='left';ctx.fillText('価格 / 始値比',right+8,12);
+ ctx.save();ctx.strokeStyle='#8ea2b9';ctx.lineWidth=1.5;ctx.setLineDash([6,7]);
+ ctx.beginPath();ctx.moveTo(left,baseline);ctx.lineTo(right,baseline);ctx.stroke();ctx.restore();
+ function trace(points,color,converter){
+  ctx.save();ctx.strokeStyle=color;ctx.lineWidth=3.5;ctx.setLineDash([]);ctx.beginPath();
+  points.forEach((v,i)=>{const x=xAt(i),y=converter(v);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});
+  ctx.stroke();ctx.restore();
+ }
+ trace(pricePoints,'#6fc4f5',yPrice);
+ if(cvdPoints.length===pricePoints.length)trace(cvdPoints,'#f5cf76',yCvd);
+ ctx.beginPath();ctx.arc(xAt(0),baseline,4.5,0,2*Math.PI);ctx.fillStyle='#ffffff';ctx.fill();
+  // Mark confirmed pressure observations at their actual confirmation bar.
+  for(const e of lastPressureEvents.slice(-5)){
+    const x=xAt(e.i+1),y=Math.max(top+12,Math.min(bottom-12,yPrice(rows[e.i].close)));
+    const m=pressureMeta[e.kind];
+    ctx.save();ctx.fillStyle=m.color;ctx.strokeStyle='#0e1725';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(x,y,6,0,2*Math.PI);ctx.fill();ctx.stroke();
+    ctx.font='bold 17px -apple-system,BlinkMacSystemFont,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(m.symbol,x,Math.max(top+12,Math.min(bottom-12,y+(e.kind==='sellFollow'||e.kind==='buyBlocked'?-20:20))));
+    ctx.restore();
+  }
+ // Four evenly spaced date/time labels, using JST and the actual candle open times.
+ ctx.strokeStyle='#40576f';ctx.lineWidth=1;ctx.fillStyle='#aebfd3';ctx.font='18px -apple-system,BlinkMacSystemFont,sans-serif';
+ for(let j=0;j<4;j++){
+  const i=Math.round((n-1)*j/3),x=xAt(i);
+  const date=new Date(rows[i].t);
+  const parts=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(date);
+  const v=k=>parts.find(p=>p.type===k)?.value||'';
+  const label=v('month')+'/'+v('day')+' '+v('hour')+':'+v('minute');
+  ctx.beginPath();ctx.moveTo(x,bottom);ctx.lineTo(x,bottom+6);ctx.stroke();
+  ctx.textAlign=j===0?'left':j===3?'right':'center';
+  ctx.fillText(label,x,bottom+29);
+ }
+ if(live!==null){
+  const y=yPrice(live);
+  ctx.save();ctx.setLineDash([9,7]);ctx.strokeStyle='#87e8cb';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();ctx.restore();
+  ctx.fillStyle='#87e8cb';ctx.beginPath();ctx.arc(right,y,6,0,2*Math.PI);ctx.fill();
+  $('livechartstatus').textContent='● 約定価格 $'+fmtPrice(live)+'（未確定）';
+ }else{
+  $('livechartstatus').textContent='ライブ価格待機中（確定足のみ）';
+ }
+}
+// Live Binance Spot trade stream: a trade tick is the last traded price, not a bid/ask quote.
+function closeTick(){tickSerial++;if(tickRetry){clearTimeout(tickRetry);tickRetry=null}if(tickSocket){const old=tickSocket;tickSocket=null;old.onclose=null;old.onerror=null;old.onmessage=null;try{old.close()}catch(_){}}lastTickAt=0;lastTickPrice=null;paintPriceChart()}
+function startTick(){closeTick();const serial=tickSerial,coin=symbol;const state=$('tickstatus');state.textContent='約定価格に接続中…';if(!('WebSocket' in window)){state.textContent='ティック非対応・確定5分足終値';return}
+ try{const ws=new WebSocket('wss://stream.binance.com:9443/ws/'+coin.toLowerCase()+'usdt@trade');tickSocket=ws;
+ ws.onopen=()=>{if(serial===tickSerial)state.textContent='約定価格・受信待ち'};
+ ws.onmessage=ev=>{if(serial!==tickSerial||symbol!==coin)return;try{const data=JSON.parse(ev.data);if(data.e!=='trade'||!Number.isFinite(Number(data.p)))return;lastTickPrice=Number(data.p);lastTickAt=Date.now();$('price').textContent='$'+fmtPrice(lastTickPrice);state.textContent='約定価格・更新中（Binance現物）';if(Date.now()-lastChartPaint>300){lastChartPaint=Date.now();paintPriceChart()}}catch(_){}};
+ const fail=()=>{if(serial!==tickSerial)return;state.textContent='ティック切断・確定5分足終値に切替';lastTickPrice=null;lastTickAt=0;paintPriceChart();if(tickRetry)clearTimeout(tickRetry);tickRetry=setTimeout(()=>{if(serial===tickSerial)startTick()},5000)};
+ ws.onclose=fail;ws.onerror=()=>{try{ws.close()}catch(_){fail()}};
+ }catch(_){state.textContent='ティック接続不可・確定5分足終値';tickRetry=setTimeout(()=>{if(serial===tickSerial)startTick()},5000)}}
+setInterval(()=>{if(lastTickAt&&Date.now()-lastTickAt>15000){$('tickstatus').textContent='約定価格が15秒以上未更新（通信を確認）';paintPriceChart()}},3000);
+
+function eaSignals(five,fifteen,hourly,daily){
+ const now=Date.now()-5000;
+ const f5=five.filter(x=>x.t+300000<=now);
+ const f15=fifteen.filter(x=>x.t+900000<=now);
+ const h1=hourly.filter(x=>x.t+3600000<=now);
+ const dayMap=new Map(daily.map(x=>[x.t,x]));
+ const f5map=new Map(f5.map((x,i)=>[x.t,i]));
+ const prefixLow=[];let lastDay=-1,minLow=Infinity;
+ for(const x of f5){
+  const day=Math.floor(x.t/86400000);
+  if(day!==lastDay){lastDay=day;minLow=Infinity}
+  minLow=Math.min(minLow,x.low);prefixLow.push(minLow);
+ }
+ let ema=null;
+ const emaAt=[];
+ for(let i=0;i<h1.length;i++){
+  ema=ema===null?h1[i].close:(2/21)*h1[i].close+(19/21)*ema;
+  emaAt.push(ema);
+ }
+ const prefixD=[0],prefixV=[0];
+ for(const x of f15){prefixD.push(prefixD.at(-1)+x.d);prefixV.push(prefixV.at(-1)+x.v)}
+ const fmtTime=t=>new Date(t).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+ const counts={reversal:0,pair:0,day:0,ema:0,hgreen:0,cvd:0,valid:0};
+ const events=[],recentChecks=[];
+ for(let j=2;j<f15.length;j++){
+  const a=f15[j-2],b=f15[j-1],c=f15[j];
+  if(!(a.d<0&&b.d<0&&c.d>0))continue;
+  if(c.t+900000<Date.now()-historyDays*86400000)continue;
+  counts.reversal++;
+  const confirm=c.t+900000;
+  let candidates=0;
+  for(let entryTime=confirm;entryTime<=confirm+1500000;entryTime+=300000){
+   const i=f5map.get(entryTime);
+   if(i===undefined||i<2)continue;
+   const f0=f5[i-2],f1=f5[i-1],entry=f5[i];
+   if(f1.t+300000!==entryTime)continue;
+   if(!(f0.close>f0.open&&f1.close>f1.open))continue;
+   candidates++;counts.pair++;
+   const dayStart=Math.floor(entryTime/86400000)*86400000;
+   const prevDay=dayMap.get(dayStart-86400000);
+   const dayOK=!!prevDay&&prevDay.close<prevDay.open&&(i>0&&Math.floor(f5[i-1].t/86400000)===Math.floor(entryTime/86400000)&&prefixLow[i-1]>=prevDay.low);
+   if(dayOK)counts.day++;
+   let hi=h1.length-1;
+   while(hi>=0&&h1[hi].t+3600000>entryTime)hi--;
+   const hourOK=hi>=20&&entry.open>emaAt[hi];
+   if(hourOK)counts.ema++;
+   const hGreen=hi>=0&&h1[hi].close>h1[hi].open;
+   if(hGreen)counts.hgreen++;
+   let fi=f15.length-1;
+   while(fi>=0&&f15[fi].t+900000>entryTime)fi--;
+   const vol=fi>=3?prefixV[fi+1]-prefixV[fi-3]:0;
+   const ratio=vol>0?(prefixD[fi+1]-prefixD[fi-3])/vol:NaN;
+   const cvdOK=Number.isFinite(ratio)&&ratio>=0.05;
+   if(cvdOK)counts.cvd++;
+   const risk=entry.open-f0.low;
+   const riskOK=risk>0;
+   const checks=[['前日陰線・安値維持',dayOK],['H1 EMA20上',hourOK],['H1陽線',hGreen],['1時間CVD +5%',cvdOK],['SL有効',riskOK]];
+   if(recentChecks.length<6)recentChecks.push({t:entryTime,checks,ratio});
+   if(!(dayOK&&hourOK&&hGreen&&cvdOK&&riskOK))break; // EA2.5: first bullish pair only; no later retries for this reversal
+   counts.valid++;
+   events.push({time:entryTime,price:entry.open,sl:f0.low,tp:entry.open+7*risk,ratio});
+   break;
+  }
+ }
+ const periodStart=Date.now()-historyDays*86400000;const unique=[...new Map(events.filter(e=>e.time>=periodStart).map(e=>[e.time,e])).values()].sort((a,b)=>b.time-a.time);window.eaEvents=unique.map(e=>({...e}));
+ // Exit replay: 5-minute OHLC, 24h maximum. If both targets touch in one candle, assume SL first.
+ // No future candles may be used for entry selection. Exit assessment is retrospective only.
+ const replay=e=>{
+  const start=f5map.get(e.time);
+  if(start===undefined)return {state:'データ不足',r:null};
+  const horizon=e.time+24*3600000;
+  for(let k=start;k<f5.length&&f5[k].t<horizon;k++){
+   const x=f5[k];
+   if(x.low<=e.sl)return {state:'SL先着',r:-1,at:x.t};
+   if(x.high>=e.tp)return {state:'RR7先着',r:7,at:x.t};
+  }
+  if(now<horizon)return {state:'判定中（24h未経過）',r:null};
+  const exit=f5.find(x=>x.t+300000>=horizon);
+  if(!exit)return {state:'期限終値不足',r:null};
+  return {state:'24h時間決済',r:(exit.close-e.price)/(e.price-e.sl),at:exit.t};
+ };
+ // Grid comparison is evaluated on the same generated signals, with no re-entry simulation.
+ const filters=[0,30,50,100],rrs=[3,5,7];
+ const score=(e,rr,rows,step=300000)=>{
+  const risk=e.price-e.sl,target=e.price+rr*risk,end=e.time+86400000;
+  let last=null;
+  for(const x of rows){
+   if(x.t<e.time||x.t>=end)continue;
+   if(x.low<=e.sl)return {r:-1,state:'SL',at:x.t};
+   if(x.high>=target)return {r:rr,state:'TP',at:x.t};
+   last=x;
+  }
+  if(now<end)return {r:null,state:'未判定'};
+  if(!last||last.t+step<end)return {r:null,state:'データ不足'};
+  return {r:(last.close-e.price)/risk,state:'時間決済',at:last.t};
+ };
+ const compare=[];
+ for(const minimum of filters)for(const rr of rrs){
+  const subset=unique.filter(e=>e.price-e.sl>=minimum);
+  const results=subset.map(e=>score(e,rr,f5)).filter(o=>o.r!==null);
+  const gains=results.filter(x=>x.r>0).reduce((n,x)=>n+x.r,0);
+  const losses=-results.filter(x=>x.r<0).reduce((n,x)=>n+x.r,0);
+  compare.push({minimum,rr,n:results.length,pf:losses>0?(gains/losses).toFixed(2):gains>0?'∞':'—',net:(gains-losses).toFixed(2)});
+ }
+ $('eacompare').innerHTML='<strong>SL幅×RR 比較（5分足・24時間・コスト前）</strong><div class="note">最低SL幅は条件未満のシグナルを除外。PFはR単位の参考値。シグナルの重複保有や約定コストは未反映。</div><div style="overflow-x:auto"><table style="width:100%;font-size:12px;text-align:right;border-collapse:collapse"><thead><tr><th>最低SL幅</th><th>RR</th><th>回数</th><th>PF</th><th>合計R</th></tr></thead><tbody>'+compare.map(x=>'<tr><td>'+x.minimum+'ドル</td><td>'+x.rr+'</td><td>'+x.n+'</td><td>'+x.pf+'</td><td>'+x.net+'</td></tr>').join('')+'</tbody></table></div>';
+ window.eaScore=score;
+ unique.forEach(e=>e.outcome=replay(e));
+ const resolved=unique.filter(e=>e.outcome.r!==null),wins=resolved.filter(e=>e.outcome.r>0),losses=resolved.filter(e=>e.outcome.r<0);
+ const gain=wins.reduce((n,e)=>n+e.outcome.r,0),loss=-losses.reduce((n,e)=>n+e.outcome.r,0);
+ const pf=loss>0?(gain/loss).toFixed(2):gain>0?'∞':'—';
+ const latest=unique[0],fresh=latest&&Date.now()-latest.time<=1800000;
+ $('eastatus').textContent=fresh?'買い候補検出':'直近の買い候補なし';
+ $('eastatus').className=fresh?'green':'muted';
+ $('eadetail').textContent=latest?'最新 '+fmtTime(latest.time)+' JST／買値目安 '+fmt(latest.price)+'／SL '+fmt(latest.sl)+'／RR7 '+fmt(latest.tp)+'／CVD比率 '+(latest.ratio*100).toFixed(2)+'%':'選択期間内で全条件一致なし';
+ $('eahistory').innerHTML='<strong>過去'+historyDays+'日間の買い候補 '+unique.length+'件</strong><div class="note">対象期間：'+fmtTime(periodStart)+'〜'+fmtTime(Date.now())+' JST。元EAの103件は2025/1〜2026/9の全期間であり、この'+historyDays+'日件数とは直接比較できません。直近の損益は過去のPF2.477を保証しません。</div><div class="note">24時間出口判定：RR7先着 '+unique.filter(e=>e.outcome.state==='RR7先着').length+'件／SL先着 '+unique.filter(e=>e.outcome.state==='SL先着').length+'件／時間決済 '+unique.filter(e=>e.outcome.state==='24h時間決済').length+'件／未判定 '+(unique.length-resolved.length)+'件。参考PF（Rベース） '+pf+'（コスト前）</div><div class="note">5分足OHLC判定。同一足で両方到達はSL優先。手数料・スプレッド・滑りなし。MT5実約定とは異なります。</div>'+unique.slice(0,30).map(e=>'<div style="padding:7px 0;border-top:1px solid #344b62">'+fmtTime(e.time)+' JST　買い '+fmt(e.price)+'　SL '+fmt(e.sl)+'　RR7 '+fmt(e.tp)+'<div><strong>'+e.outcome.state+'</strong>'+(e.outcome.r===null?'':'／'+e.outcome.r.toFixed(2)+'R')+(e.outcome.at?'／'+fmtTime(e.outcome.at)+' JST':'')+'</div></div>').join('');
+ const diag=$('eadiag');
+ if(diag){
+  const latestCheck=recentChecks.sort((a,b)=>b.t-a.t)[0];
+  diag.innerHTML='<strong>条件別の判定状況（過去'+historyDays+'日）</strong><div class="note">15分CVD反転 '+counts.reversal+'回／5分陽線2本 '+counts.pair+'回／全条件一致 '+counts.valid+'回。各条件の件数は独立集計（段階通過数ではありません）。</div>'+
+  '<div class="note">前日陰線・安値維持 '+counts.day+'／EMA20上 '+counts.ema+'／H1陽線 '+counts.hgreen+'／CVD+5% '+counts.cvd+'</div>'+
+  (latestCheck?'<div class="note">直近の価格確認 '+fmtTime(latestCheck.t)+' JST：'+latestCheck.checks.map(x=>(x[1]?'✓ ':'× ')+x[0]).join(' ／ ')+' （CVD '+(Number.isFinite(latestCheck.ratio)?(latestCheck.ratio*100).toFixed(2)+'%':'計算不可')+'）</div>':'<div class="note">5分陽線2本まで成立した候補なし</div>');
+ }
+}
+async function update(){const token=++requestToken;busy=true;$('status').textContent='取得中';try{const requestedSymbol=symbol,requestedTf=timeframe,period=chartPeriods[requestedTf];
+let [chartResult,raw5]=await Promise.all([
+ period&&!period.rollingCount?getChartPeriod(requestedTf,requestedSymbol):Promise.resolve(null),
+ get('5m',300)
+]);
+if(token!==requestToken)return;
+const cut=Date.now()-5000;
+const raw=period.rollingCount?raw5:chartResult.raw;
+const completed=raw.filter(r=>Number(r[6])<=cut);
+// Rolling 1h/4h/24h use exactly the latest 12/48/288 completed 5-minute candles.
+const selectedRows=period.rollingCount?completed.slice(-period.rollingCount):completed;
+let a=selectedRows.map(r=>({open:Number(r[1]),close:Number(r[4]),high:Number(r[2]),low:Number(r[3]),t:Number(r[0]),d:2*Number(r[9])-Number(r[5])}));
+if(a.length<(period.rollingCount?period.rollingCount:1))throw Error('期間データ不足・確定足を待機中');
+let ds=a.map(r=>r.d);$('symbol').textContent=symbol+'USDT · Binance現物';
+const confirmed5=raw5.filter(r=>Number(r[6])<=cut);const b=confirmed5.map(r=>2*Number(r[9])-Number(r[5]));
+if(b.length<12)throw Error('5分足の確定データ不足');if(!lastTickAt||Date.now()-lastTickAt>15000){$('price').textContent='$'+fmtPrice(Number(confirmed5.at(-1)[4]));$('tickstatus').textContent='確定5分足終値（ティック待機・切断時）'}const last5=Number(confirmed5.at(-1)[0]);if(cut-(last5+300000)>600000)throw Error('5分足データが古いため判定停止');confirmedFlowRows=a;showFlow();
+const agg=n=>b.slice(-n).reduce((x,y)=>x+y,0);
+const periodDelta=ds.reduce((x,y)=>x+y,0);
+snapshot={symbol,period:requestedTf,delta:periodDelta};showSelectedDelta();
+$('datatime').textContent='集計基準：'+new Date(a.at(-1).t+({'5m':300000,'15m':900000,'1h':3600000}[period.interval])).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour12:false})+' JST（確定足）';
+$('audit').textContent='選択中：'+deltaConfig[requestedTf].label+'｜成行差分 '+(periodDelta>0?'+':'')+fmt(periodDelta)+' '+symbol+'｜価格始値 '+fmtPrice(a[0].open)+' → 終値 '+fmtPrice(a.at(-1).close)+'｜成行差分・判定・チャートは同じ期間';
+$('periodlabel').textContent=period.label+'（'+new Date(period.rollingCount?a[0].t:chartResult.start).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})+'〜・'+({'5m':'5分','15m':'15分','1h':'1時間'}[period.interval])+'足確定基準）';
+
+const p=agg(3),prev=b.slice(-6,-3).reduce((x,y)=>x+y,0);
+$('change').textContent=prev<=0&&p>0?'売り→買い転換':prev>=0&&p<0?'買い→売り転換':'転換なし';$('detail').textContent='直近の確定済み5分足3本（15分）：'+fmt(p)+' '+symbol+' / その前の3本：'+fmt(prev)+' '+symbol+'。チャート時間足に依存せず判定。';;lastChartRows=a;let cvdTotal=0;lastCvdSeries=ds.map(v=>(cvdTotal+=v));lastPressureEvents=findPressureEvents(lastChartRows);showPressure();lastPriceSeries=a.map(x=>x.close);paintPriceChart();$('status').textContent='接続OK';updateHistory();$('time').textContent=new Date().toLocaleTimeString('ja-JP')}catch(e){if(token!==requestToken)return;$('status').textContent='取得失敗';$('detail').textContent='データ取得不可：'+e.message;$('change').textContent='判定不可';$('eastatus').textContent='判定不可';$('eadetail').textContent='データ取得失敗';confirmedFlowRows=[];showFlow();$('delta').textContent='—';$('datatime').textContent='集計基準：取得失敗';$('audit').textContent='再取得して確認してください';document.querySelectorAll('[data-delta] strong').forEach(el=>el.textContent='—')}finally{if(token===requestToken)busy=false}}
+let historyDays=90,historyCacheDays=0;let historyCacheSymbol='',historyCacheAt=0,historyLoading=false;
+async function updateHistory(force=false){
+ if($('hidden-analysis')?.style.display==='none')return;
+ if(historyLoading||(!force&&historyCacheSymbol===symbol&&historyCacheDays===historyDays&&Date.now()-historyCacheAt<1800000))return;
+ historyLoading=true;
+ const target=symbol,days=historyDays;
+ $('eastatus').textContent=days+'日履歴を取得中…';$('eaprogress').textContent='5分・15分・1時間・日足を取得中（'+days+'日）';$('eadetail').textContent=days+'日履歴の取得・判定を実行中…';
+ try{
+  const [five,fifteen,hourly,daily]=await Promise.all([getHistory('5m',days+2),getHistory('15m',days+2),getHistory('1h',days+3),getHistory('1d',days+28)]);
+  if(target!==symbol||days!==historyDays)return;
+  const conv=r=>({t:+r[0],open:+r[1],high:+r[2],low:+r[3],close:+r[4],v:+r[5],d:2*(+r[9])-(+r[5])});
+  eaSignals(five.map(conv),fifteen.map(conv),hourly.map(conv),daily.map(conv));
+  historyCacheSymbol=target;historyCacheDays=days;historyCacheAt=Date.now();$('eaprogress').textContent='取得完了：'+five.length+'本（5分足）／'+new Date(+five[0][0]).toLocaleDateString('ja-JP',{timeZone:'Asia/Tokyo'})+'〜';
+ }catch(e){
+  if(target!==symbol||days!==historyDays)return;
+  $('eastatus').textContent='履歴取得失敗';$('eaprogress').textContent='エラー：再取得ボタンで再試行';historyCacheSymbol=target;historyCacheAt=Date.now()-1500000;
+  $('eadetail').textContent=days+'日履歴の取得に失敗：'+e.message+'。時間をおいて更新してください。';
+ }finally{historyLoading=false}
+}
+async function fetchMinuteWindow(event){
+ let all=[],start=event.time,end=Math.min(event.time+86400000,Date.now()-60000);
+ while(start<end){
+  let data=null,error=null;
+  for(const base of urls){
+   try{
+    const q='?symbol='+symbol+'USDT&interval=1m&limit=1000&startTime='+start+'&endTime='+(end-1);
+    const r=await fetch(base+q,{cache:'no-store'});
+    if(!r.ok)throw Error('HTTP '+r.status);
+    data=await r.json();break;
+   }catch(e){error=e}
+  }
+  if(!data)throw error||Error('1分足取得失敗');
+  if(!data.length)break;
+  all.push(...data.map(x=>({t:+x[0],open:+x[1],high:+x[2],low:+x[3],close:+x[4]})));
+  const next=Number(data.at(-1)[0])+60000;
+  if(next<=start)break;
+  start=next;
+ }
+ return all;
+}
+$('ea1m').onclick=async()=>{
+ const allEvents=window.eaEvents||[];const events=allEvents.slice();
+ if(!events.length){$('ea1mstatus').textContent='候補なし';return}
+ const target=symbol,button=$('ea1m');button.disabled=true;
+ $('ea1mresult').textContent='1分足を取得して検証中…（全候補 '+allEvents.length+'件）';
+ try{
+  const outcomes=[];
+  for(let i=0;i<events.length;i++){
+   if(symbol!==target)throw Error('銘柄が変更されました');
+   $('ea1mstatus').textContent=(i+1)+' / '+events.length+'件';
+   const bars=await fetchMinuteWindow(events[i]);
+   if(!bars.length)throw Error('1分足データが空です');
+   const results=[3,5,7].map(rr=>window.eaScore(events[i],rr,bars,60000));
+   outcomes.push({event:events[i],results});
+  }
+  const summarize=rrIndex=>{
+   const xs=outcomes.map(o=>o.results[rrIndex]).filter(x=>x.r!==null);
+   const plus=xs.filter(x=>x.r>0).reduce((n,x)=>n+x.r,0),minus=-xs.filter(x=>x.r<0).reduce((n,x)=>n+x.r,0);
+   return 'RR'+[3,5,7][rrIndex]+'：'+xs.length+'件、PF '+(minus? (plus/minus).toFixed(2):plus?'∞':'—')+'、合計 '+(plus-minus).toFixed(2)+'R';
+  };
+  const filters=target==='ETH'?[{min:0,max:Infinity},{min:.001,max:Infinity},{min:.002,max:Infinity},{min:.003,max:Infinity},{min:.005,max:Infinity},{min:.001,max:.003},{min:.002,max:.003},{min:.002,max:.005},{min:.003,max:.005}]:[0,30,50,100].map(v=>({min:v,max:Infinity}));
+  const filterLabel=f=>target==='ETH'?(f.min*100).toFixed(1)+'%'+(Number.isFinite(f.max)?'〜'+(f.max*100).toFixed(1)+'%':'以上'):f.min+'ドル以上';
+  const passes=(e,f)=>{const risk=e.price-e.sl;const w=target==='ETH'?risk/e.price:risk;return w>=f.min&&w<f.max};
+  const rows=filters.map(f=>{
+   const subset=outcomes.filter(o=>passes(o.event,f));
+   const metrics=[0,1,2].map(idx=>{
+    const xs=subset.map(o=>o.results[idx]).filter(x=>x.r!==null);
+    const gain=xs.reduce((a,x)=>a+Math.max(0,x.r),0),loss=xs.reduce((a,x)=>a+Math.max(0,-x.r),0);
+    return {n:xs.length,pf:loss?(gain/loss).toFixed(2):gain?'∞':'—',r:(gain-loss).toFixed(2)};
+   });
+   return {f,metrics};
+  });
+  const header='<tr><th>最低SL幅</th><th>RR</th><th>回数</th><th>PF</th><th>合計R</th></tr>';
+  const table=rows.map(row=>row.metrics.map((m,i)=>'<tr><td>'+filterLabel(row.f)+'</td><td>'+[3,5,7][i]+'</td><td>'+m.n+'</td><td>'+m.pf+'</td><td>'+m.r+'</td></tr>').join('')).join('');
+  $('ea1mresult').innerHTML='<strong>1分足による全件再判定（'+events.length+'件・コスト前）</strong>'+
+   '<div class="note">'+(target==='ETH'?'ETHは価格に対するSL幅（%）で比較。0.2〜0.3%などの上限付き帯域も検証します。上限は含みません。BTCのドル幅を流用しません。':'BTCはSL幅（ドル）で比較。')+'</div>'+
+   '<div style="overflow-x:auto"><table style="width:100%;font-size:12px;text-align:right;border-collapse:collapse"><thead>'+header+'</thead><tbody>'+table+'</tbody></table></div>'+
+   '<div class="note">同一1分足でTPとSLに到達した場合はSL優先。24時間上限。RベースPFで、コスト・重複保有制限は未反映。元EAのドル建てPFとは別指標。</div>'+
+   '<details><summary>全取引の1分足結果を表示</summary>'+outcomes.map(o=>'<div style="padding:5px 0;border-top:1px solid #344b62">'+new Date(o.event.time).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+'：'+o.results.map((x,i)=>'RR'+[3,5,7][i]+' '+x.state+(x.r===null?'':' '+x.r.toFixed(2)+'R')).join('／')+'</div>').join('')+'</details>';
+  // Independent per-strategy chronological replay. Only one open trade at a time.
+  // Cash P/L is in USDT for a constant 1 BTC or 1 ETH position; no compounding.
+  // A completed exit unlocks the next later signal; simultaneous timestamp is excluded.
+  const costRate=0.0004;
+  const strategies=[];
+  for(const threshold of filters)for(const rr of [3,5,7]){
+   let busyUntil=-Infinity, grossWin=0,grossLoss=0,netWin=0,netLoss=0,netTotal=0;
+   let accepted=0,skipped=0,pending=0;
+   const selected=[];
+   for(const o of outcomes.slice().sort((a,b)=>a.event.time-b.event.time)){
+    const e=o.event,risk=e.price-e.sl;
+    if(!passes(e,threshold))continue;
+    if(e.time<=busyUntil){skipped++;continue}
+    const x=o.results[[3,5,7].indexOf(rr)];
+    if(x.r===null||!Number.isFinite(x.at)){pending++;continue}
+    const exitPrice=x.state==='SL'?e.sl:x.state==='TP'?e.price+rr*risk:e.price+x.r*risk;
+    const gross=exitPrice-e.price;
+    const fee=costRate*(e.price+exitPrice)/2; // round-trip 0.04% of average notional
+    const net=gross-fee;
+    grossWin+=Math.max(0,gross);grossLoss+=Math.max(0,-gross);
+    netWin+=Math.max(0,net);netLoss+=Math.max(0,-net);netTotal+=net;
+    accepted++;busyUntil=x.at;
+    selected.push({time:e.time,exit:x.at,entry:e.price,exitPrice,sl:e.sl,gross,fee,net,reason:x.state});
+   }
+   const fmtpf=(w,l)=>l>0?(w/l).toFixed(2):w>0?'∞':'—';
+   strategies.push({threshold,rr,accepted,skipped,pending,grossPf:fmtpf(grossWin,grossLoss),netPf:fmtpf(netWin,netLoss),netTotal,selected});
+  }
+  const hdr2='<tr><th>最低SL幅</th><th>RR</th><th>取引</th><th>重複除外</th><th>PF費用前</th><th>PF費用後</th><th>純損益</th></tr>';
+  const fmtThreshold=filterLabel;
+  const trows=strategies.map(x=>'<tr><td>'+fmtThreshold(x.threshold)+'</td><td>'+x.rr+'</td><td>'+x.accepted+'</td><td>'+x.skipped+'</td><td>'+x.grossPf+'</td><td><strong>'+x.netPf+'</strong></td><td>'+x.netTotal.toFixed(2)+'</td></tr>').join('');
+  $('ea1mresult').innerHTML+='<hr style="border:0;border-top:1px solid #344b62;margin:18px 0">'+
+   '<strong>重複エントリー禁止＋往復コスト0.04%・ドル建てPF（独立再生）</strong>'+
+   '<div class="note">全シグナルを時刻順に判定し、ポジション保有中の新規候補を見送り。各RR・SL幅ごとに独立再生。固定1 '+target+'、複利なし。純損益はUSDT、PFは金額ベース。コストは往復0.04%（エントリー・決済の平均価格に対して控除）。スプレッド・滑りなし。元EAのPFとは期間・銘柄・データが異なります。</div>'+
+   '<div style="overflow-x:auto"><table style="width:100%;font-size:11px;text-align:right;border-collapse:collapse"><thead>'+hdr2+'</thead><tbody>'+trows+'</tbody></table></div>'+
+   '<details><summary>重複除外後の取引明細（各設定）</summary>'+strategies.map(x=>'<details><summary>'+fmtThreshold(x.threshold)+' / RR'+x.rr+'（'+x.accepted+'件）</summary>'+x.selected.map(y=>'<div style="border-top:1px solid #344b62;padding:5px 0">'+new Date(y.time).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+' → '+new Date(y.exit).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+'　'+y.reason+'　'+y.net.toFixed(2)+' USDT（費用 '+y.fee.toFixed(2)+'）</div>').join('')+'</details>').join('')+'</details>';
+  // Fixed-parameter temporal robustness check. Older and newer halves are
+  // disjoint 90-day slices of the selected 180-day window, split by ENTRY time.
+  // This is retrospective holdout, not a prospective out-of-sample test.
+  if(target==='ETH'&&historyDays===180){
+   const now=Date.now(),cutoff=now-90*86400000,start=now-180*86400000;
+   const fixed=[
+    {name:'基準：SL制限なし / RR5',min:0,max:Infinity,rr:5},
+    {name:'候補：SL 0.1〜0.3% / RR5',min:.001,max:.003,rr:5},
+    {name:'比較：SL 0.2〜0.3% / RR5',min:.002,max:.003,rr:5}
+   ];
+   const periodStat=(trades)=>{
+    let w=0,l=0,net=0;
+    for(const t of trades){w+=Math.max(0,t.net);l+=Math.max(0,-t.net);net+=t.net}
+    return {n:trades.length,pf:l>0?(w/l).toFixed(2):w>0?'∞':'—',net:net.toFixed(2)};
+   };
+   const tableRows=fixed.map(f=>{
+    const strat=strategies.find(x=>x.rr===f.rr&&x.threshold.min===f.min&&x.threshold.max===f.max);
+    if(!strat)return '';
+    const old=periodStat(strat.selected.filter(t=>t.time>=start&&t.time<cutoff));
+    const recent=periodStat(strat.selected.filter(t=>t.time>=cutoff&&t.time<=now));
+    return '<tr><td>'+f.name+'</td><td>'+old.n+'</td><td>'+old.pf+'</td><td>'+old.net+'</td><td>'+recent.n+'</td><td>'+recent.pf+'</td><td>'+recent.net+'</td></tr>';
+   }).join('');
+   $('ea1mresult').innerHTML+='<hr style="border:0;border-top:1px solid #344b62;margin:18px 0">'+
+    '<strong>ETH・期間分割による頑健性チェック（固定RR5）</strong>'+
+    '<div class="note">180日を前半90日と後半90日に分割。<b>SL 0.1〜0.3%・RR5</b>を固定して比較。期間はエントリー時刻で区分し、180日全体で重複保有を除外した取引を使用。固定1ETH、往復コスト0.04%控除後のドル建てPF。PFは少数取引で極端な値になりやすいので件数と損益も確認。</div>'+
+    '<div style="overflow-x:auto"><table style="width:100%;font-size:11px;text-align:right;border-collapse:collapse"><thead><tr><th>設定</th><th>前半件数</th><th>前半PF</th><th>前半USDT</th><th>後半件数</th><th>後半PF</th><th>後半USDT</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+
+    '<div class="note">注意：0.1〜0.3%は過去の180日結果を見て選択した設定です。前半を真の未使用データとして扱うことはできず、将来成績の保証にもなりません。次は設定を固定して将来データを記録する前向き検証が必要です。</div>';
+  }
+  $('ea1mstatus').textContent='検証完了';
+ }catch(e){$('ea1mstatus').textContent='取得失敗';$('ea1mresult').textContent='1分足の取得・判定エラー：'+e.message}
+ finally{button.disabled=false}
+};
+document.querySelectorAll('[data-days]').forEach(b=>b.onclick=()=>{const days=Number(b.dataset.days);if(historyDays===days)return;historyDays=days;historyCacheAt=0;document.querySelectorAll('[data-days]').forEach(x=>x.classList.toggle('active',x===b));if(historyLoading){$('eaprogress').textContent='前の取得完了後に切替。もう一度選択期間を再取得してください';return}updateHistory(true)});$('eareload').onclick=()=>{historyCacheAt=0;updateHistory(true)};document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{symbol=b.dataset.s;snapshot=null;lastChartRows=[];lastCvdSeries=[];lastPressureEvents=[];lastPriceSeries=[];confirmedFlowRows=[];showFlow();showPressure();showSelectedDelta();historyCacheAt=0;$('price').textContent='—';$('symbol').textContent=symbol+'USDT · Binance現物';startTick();document.querySelectorAll('[data-s]').forEach(x=>x.classList.toggle('active',x===b));update()});document.querySelectorAll('[data-delta]').forEach(b=>b.onclick=()=>selectPeriod(b.dataset.delta));showSelectedDelta();$('refresh').onclick=update;startTick();update();setInterval(update,60000);
+
+
+// Web Push subscription is intentionally separate from historical backtesting.
+const pushUrlInput=document.getElementById('pushurl'),pushStatus=document.getElementById('pushstatus');
+pushUrlInput.value=localStorage.getItem('cvdPushWorker')||'';
+document.getElementById('pushsave').onclick=()=>{const url=pushUrlInput.value.trim().replace(/\/$/,'');if(!/^https:\/\/[\w.-]+/.test(url)){pushStatus.textContent='HTTPSのWorker URLを入力してください';return}localStorage.setItem('cvdPushWorker',url);pushStatus.textContent='保存しました。次に「通知を有効にする」を押してください。'};
+function b64ToBytes(s){const pad='='.repeat((4-s.length%4)%4);const bin=atob((s+pad).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(bin,c=>c.charCodeAt(0))}
+document.getElementById('pushon').onclick=async()=>{
+ try{
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))throw Error('このブラウザではWeb Pushを使えません。iPhoneではホーム画面から起動してください。');
+  const worker=(localStorage.getItem('cvdPushWorker')||pushUrlInput.value).replace(/\/$/,'');
+  if(!worker.startsWith('https://'))throw Error('先にWorker URLを保存してください');
+  pushStatus.textContent='通知登録中…';
+  const reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+  await navigator.serviceWorker.ready;
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted')throw Error('通知が許可されていません（'+perm+'）');
+  const config=await fetch(worker+'/config').then(r=>{if(!r.ok)throw Error('通知サーバーに接続できません');return r.json()});
+  let sub=await reg.pushManager.getSubscription();
+  if(sub){await sub.unsubscribe();sub=null}
+  sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToBytes(config.publicKey)});
+  const res=await fetch(worker+'/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sub)});
+  if(!res.ok)throw Error('購読登録エラー HTTP '+res.status);
+  pushStatus.textContent='通知登録済み。サーバー監視が有効なら、条件成立時に通知されます。';
+ }catch(e){pushStatus.textContent='設定できません：'+e.message}
+};
+</script></body></html>
