@@ -45,16 +45,7 @@ async function getHistory(interval, days=30){
  const seen=new Map(all.filter(r=>Number(r[0])>=cutoff-86400000).map(r=>[Number(r[0]),r]));
  return [...seen.values()].sort((a,b)=>Number(a[0])-Number(b[0]));
 }
-function chartLine(id, values, stroke, opts={}){const el=$(id),ctx=el.getContext('2d'),w=el.width,h=el.height;ctx.clearRect(0,0,w,h);const top=18,bottom=35,usable=h-top-bottom;const lo=Math.min(...values),hi=Math.max(...values),span=hi-lo||1;ctx.strokeStyle='#304860';ctx.lineWidth=1;for(let i=0;i<4;i++){let y=top+i*usable/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.beginPath();values.forEach((v,i)=>{const x=8+i*(w-16)/Math.max(1,values.length-1),y=top+(hi-v)/span*usable;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();if(opts.bars){const d=opts.bars.slice(-55),peak=Math.max(1,...d.map(Math.abs)),bw=w/d.length;d.forEach((v,i)=>{ctx.fillStyle=v>=0?'#55c69e':'#f17c86';const bh=Math.abs(v)/peak*22;ctx.fillRect(i*bw,h-3-bh,Math.max(1,bw-2),bh)})}else{// CVD shares the time axis, but uses its own right-hand scale.
- if(lastCvdSeries.length){
-  const cv=lastCvdSeries, n=Math.min(values.length,cv.length);
-  const c=cv.slice(-n),cLo=Math.min(...c),cHi=Math.max(...c),cSpan=cHi-cLo||1;
-  ctx.save();ctx.strokeStyle='#f5cf76';ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();
-  c.forEach((v,i)=>{const x=8+i*(w-16)/Math.max(1,n-1),y=top+(cHi-v)/cSpan*usable;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
-  ctx.stroke();ctx.fillStyle='#f5cf76';ctx.textAlign='right';ctx.font='16px sans-serif';
-  ctx.fillText('CVD '+fmt(cHi),w-10,18);ctx.fillText('CVD '+fmt(cLo),w-10,h-8);ctx.restore();
- }
- ctx.fillStyle='#b5c8dd';ctx.font='18px sans-serif';ctx.fillText('$'+fmt(hi),10,18);ctx.fillText('$'+fmt(lo),10,h-8)}}
+function chartLine(id, values, stroke, opts={}){const el=$(id),ctx=el.getContext('2d'),w=el.width,h=el.height;ctx.clearRect(0,0,w,h);const top=18,bottom=35,usable=h-top-bottom;const lo=Math.min(...values),hi=Math.max(...values),span=hi-lo||1;ctx.strokeStyle='#304860';ctx.lineWidth=1;for(let i=0;i<4;i++){let y=top+i*usable/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.beginPath();values.forEach((v,i)=>{const x=8+i*(w-16)/Math.max(1,values.length-1),y=top+(hi-v)/span*usable;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();if(opts.bars){const d=opts.bars.slice(-55),peak=Math.max(1,...d.map(Math.abs)),bw=w/d.length;d.forEach((v,i)=>{ctx.fillStyle=v>=0?'#55c69e':'#f17c86';const bh=Math.abs(v)/peak*22;ctx.fillRect(i*bw,h-3-bh,Math.max(1,bw-2),bh)})}else{ctx.fillStyle='#b5c8dd';ctx.font='18px sans-serif';ctx.fillText('$'+fmt(hi),10,18);ctx.fillText('$'+fmt(lo),10,h-8)}}
 function draw(ds){let sum=0;lastCvdSeries=ds.map(v=>(sum+=v));paintPriceChart()} 
 function drawPrice(a){lastPriceSeries=a.map(x=>x.close);paintPriceChart()}
 function paintPriceChart(){if(!lastPriceSeries||!lastPriceSeries.length)return;
@@ -63,6 +54,17 @@ function paintPriceChart(){if(!lastPriceSeries||!lastPriceSeries.length)return;
  const lo=Math.min(...values,...lastChartRows.map(x=>x.low),...(live===null?[]:[live])),hi=Math.max(...values,...lastChartRows.map(x=>x.high),...(live===null?[]:[live]));const span=hi-lo||1;
  ctx.clearRect(0,0,w,h);ctx.strokeStyle='#304860';ctx.lineWidth=1;for(let i=0;i<4;i++){let y=top+i*usable/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
  ctx.strokeStyle='#6fc4f5';ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();values.forEach((v,i)=>{const x=8+i*(w-16)/Math.max(1,values.length-1),y=top+(hi-v)/span*usable;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+ // Draw CVD on the visible price chart, using an independent right axis.
+ if(lastCvdSeries.length){
+  const n=Math.min(values.length,lastCvdSeries.length), cv=lastCvdSeries.slice(-n);
+  const cLo=Math.min(...cv),cHi=Math.max(...cv),cSpan=cHi-cLo||1;
+  ctx.save();ctx.strokeStyle='#f5cf76';ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();
+  cv.forEach((v,i)=>{const x=8+i*(w-16)/Math.max(1,n-1),y=top+(cHi-v)/cSpan*usable;
+   if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});
+  ctx.stroke();ctx.fillStyle='#f5cf76';ctx.textAlign='right';ctx.font='16px sans-serif';
+  ctx.fillText('CVD '+fmt(cHi),w-10,top+15);
+  ctx.fillText('CVD '+fmt(cLo),w-10,h-8);ctx.restore();
+ }
  ctx.fillStyle='#b5c8dd';ctx.font='18px sans-serif';ctx.fillText('$'+fmt(hi),10,18);ctx.fillText('$'+fmt(lo),10,h-8);
  if(live!==null){const y=top+(hi-live)/span*usable;ctx.save();ctx.setLineDash([9,7]);ctx.strokeStyle='#87e8cb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();ctx.restore();ctx.fillStyle='#87e8cb';ctx.beginPath();ctx.arc(w-9,y,6,0,2*Math.PI);ctx.fill();$('livechartstatus').textContent='● 約定価格 $'+fmt(live)+'（未確定）'}
  else {$('livechartstatus').textContent='ライブ価格待機中（確定足のみ）'}
