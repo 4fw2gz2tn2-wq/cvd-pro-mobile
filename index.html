@@ -16,7 +16,7 @@
 .stats .stat-choice strong{font-size:11px;font-weight:700}
 .stats .stat-choice.selected{background:#245a57;border-color:#70dfbd;box-shadow:inset 0 0 0 1px #70dfbd}
 .stats .stat-choice:focus-visible{outline:2px solid #a1e9d4;outline-offset:2px}
-</style><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"></head><body><main><div class="row"><div><div class="big">CVD <span class="green">PRO</span> <span style="font-size:12px;color:#6ee2af;border:1px solid #6ee2af;border-radius:6px;padding:4px">v6.0 / Web Push</span></div><div class="muted">BTC / ETH · 裁量トレード補助</div></div><div id="status" class="muted">接続待ち</div></div><div class="tabs"><button class="active" data-s="BTC">BTC</button><button data-s="ETH">ETH</button></div><div class="card"><div class="row"><div><div class="muted" id="symbol">BTCUSDT · Binance現物</div><div class="big" id="price">—</div><div class="muted" id="tickstatus">ティック接続中…</div></div><div style="text-align:right"><div class="muted"><span id="deltaperiod">直近15分</span>の成行差分（確定足）</div><div class="big" id="delta">—</div></div></div><div class="stats"><button type="button" class="stat stat-choice" data-delta="5m" aria-pressed="false">5分<strong id="five">—</strong></button><button type="button" class="stat stat-choice selected" data-delta="15m" aria-pressed="true">15分<strong id="fifteen">—</strong></button><button type="button" class="stat stat-choice" data-delta="1h" aria-pressed="false">1時間<strong id="hour">—</strong></button><button type="button" class="stat stat-choice" data-delta="4h" aria-pressed="false">4時間<strong id="fourhour">—</strong></button><button type="button" class="stat stat-choice" data-delta="24h" aria-pressed="false">24時間<strong id="daily">—</strong></button></div></div><div class="card"><div id="datatime" class="muted">集計基準：取得待ち</div><div id="audit" class="muted" style="margin-top:6px">5分・15分・1時間・4時間・24時間は直近の確定5分足から集計</div></div><div class="card"><div class="row"><strong>価格 × CVD</strong><span class="muted" id="periodlabel">5分足・直近約24時間</span></div><div class="tabs tf-tabs"><button class="active" data-tf="5m">5分</button><button data-tf="15m">15分</button><button data-tf="1h">1時間</button><button data-tf="4h">4時間</button><button data-tf="1d">日足</button></div><div class="chart-title">価格＋累積CVD（重ね表示）・現在の約定価格 <span class="muted" id="livechartstatus">ライブ価格待機中</span></div><canvas id="pricegraph" width="700" height="245"></canvas><div class="chart-title">起点を一致：最初の足の始値＝CVD 0</div><canvas id="graph" width="700" height="245" style="display:none"></canvas><div class="muted">水色：確定足終値　水色の点線・丸：現在の約定価格（未確定）　黄色：累積CVD　赤・緑：各足の成行差分。各時間足の表示開始時点（最初の足の始値）を共通起点とし、CVDはその時点を0として累積。縦軸は別々の倍率で表示。</div></div><div id="hidden-analysis" style="display:none"><div class="card"><div class="row"><strong>EA 2.5｜シグナル検証</strong><strong id="eastatus" class="muted">判定待ち</strong></div><details class="fold"><summary>売買条件を確認</summary><p class="note">15分CVD「負・負・正」→30分以内の5分陽線2本。前日陰線／当日安値維持／H1 EMA20上／直近確定15分足4本のCVD比率+5%以上／確定H1陽線。SLは陽線1本目の安値、参考TPはRR7。EA 2.5原型：反転確定時刻も対象、最初の陽線2本のみ判定（不合格なら同じ反転で再試行しない）。</p></details><div id="eadetail" class="note">履歴を読み込みます…</div><div class="tabs tf-tabs" id="historyperiod" style="margin:10px 0"><button data-days="30">30日</button><button data-days="90" class="active">90日</button><button data-days="180">180日</button></div><p class="muted" style="margin:6px 0">標準90日。180日は取得に時間がかかります。</p><div class="row" style="margin:10px 0"><button id="eareload" type="button">選択期間を再取得</button><span id="eaprogress" class="muted">未取得</span></div><section class="result-section"><h3>RR・SL幅の比較</h3><div id="eacompare" class="note"></div></section><details class="fold"><summary>取引履歴を見る</summary><div id="eahistory" class="note"></div></details><details class="fold"><summary>検証の詳細・診断</summary><div id="eadiag" class="note"></div></details><details class="fold"><summary>1分足で精密検証（通信量大）</summary><div class="row" style="margin:12px 0"><button id="ea1m" type="button">全件1分足で検証</button><span id="ea1mstatus" class="muted">未実施</span></div><div id="ea1mresult" class="note"></div></details><p class="muted">Binance現物の買い候補表示。MT5のブローカー価格・約定条件と一致する保証はありません。ETHはBTCでの検証成績を適用できません。</p></div><div class="card"><div class="row"><strong>売買圧力の変化</strong><strong id="change">—</strong></div><p id="detail" class="note">データを取得しています…</p><div class="row"><button id="refresh">更新する</button><span class="muted" id="time">—</span></div></div><div class="card" style="display:none"><strong>BTC・ETH エントリー通知（iPhone Web Push）</strong>
+</style><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"></head><body><main><div class="row"><div><div class="big">CVD <span class="green">PRO</span> <span style="font-size:12px;color:#6ee2af;border:1px solid #6ee2af;border-radius:6px;padding:4px">v6.0 / Web Push</span></div><div class="muted">BTC / ETH · 裁量トレード補助</div></div><div id="status" class="muted">接続待ち</div></div><div class="tabs"><button class="active" data-s="BTC">BTC</button><button data-s="ETH">ETH</button></div><div class="card"><div class="row"><div><div class="muted" id="symbol">BTCUSDT · Binance現物</div><div class="big" id="price">—</div><div class="muted" id="tickstatus">ティック接続中…</div></div><div style="text-align:right"><div class="muted"><span id="deltaperiod">直近15分</span>の成行差分（確定足）</div><div class="big" id="delta">—</div></div></div><div class="stats"><button type="button" class="stat stat-choice" data-delta="5m" aria-pressed="false">5分<strong id="five">—</strong></button><button type="button" class="stat stat-choice selected" data-delta="15m" aria-pressed="true">15分<strong id="fifteen">—</strong></button><button type="button" class="stat stat-choice" data-delta="1h" aria-pressed="false">1時間<strong id="hour">—</strong></button><button type="button" class="stat stat-choice" data-delta="4h" aria-pressed="false">4時間<strong id="fourhour">—</strong></button><button type="button" class="stat stat-choice" data-delta="24h" aria-pressed="false">24時間<strong id="daily">—</strong></button></div></div><div class="card"><div id="datatime" class="muted">集計基準：取得待ち</div><div id="audit" class="muted" style="margin-top:6px">5分・15分・1時間・4時間・24時間は直近の確定5分足から集計</div></div><div class="card"><div class="row"><strong>価格 × CVD</strong><span class="muted" id="periodlabel">5分足・直近約24時間</span></div><div class="tabs tf-tabs"><button class="active" data-tf="5m">5分</button><button data-tf="15m">15分</button><button data-tf="1h">1時間</button><button data-tf="4h">4時間</button><button data-tf="1d">日足</button></div><div class="chart-title">価格＋累積CVD（重ね表示）・現在の約定価格 <span class="muted" id="livechartstatus">ライブ価格待機中</span></div><canvas id="pricegraph" width="700" height="365" style="height:215px"></canvas><div class="chart-title">左：CVD　右：価格（USDT）　下：日時（日本時間）</div><canvas id="graph" width="700" height="245" style="display:none"></canvas><div class="muted">水色：確定足終値　水色の点線・丸：現在の約定価格（未確定）　黄色：累積CVD　赤・緑：各足の成行差分。各時間足の表示開始時点（最初の足の始値）を共通起点とし、CVDはその時点を0として累積。縦軸は別々の倍率で表示。</div></div><div id="hidden-analysis" style="display:none"><div class="card"><div class="row"><strong>EA 2.5｜シグナル検証</strong><strong id="eastatus" class="muted">判定待ち</strong></div><details class="fold"><summary>売買条件を確認</summary><p class="note">15分CVD「負・負・正」→30分以内の5分陽線2本。前日陰線／当日安値維持／H1 EMA20上／直近確定15分足4本のCVD比率+5%以上／確定H1陽線。SLは陽線1本目の安値、参考TPはRR7。EA 2.5原型：反転確定時刻も対象、最初の陽線2本のみ判定（不合格なら同じ反転で再試行しない）。</p></details><div id="eadetail" class="note">履歴を読み込みます…</div><div class="tabs tf-tabs" id="historyperiod" style="margin:10px 0"><button data-days="30">30日</button><button data-days="90" class="active">90日</button><button data-days="180">180日</button></div><p class="muted" style="margin:6px 0">標準90日。180日は取得に時間がかかります。</p><div class="row" style="margin:10px 0"><button id="eareload" type="button">選択期間を再取得</button><span id="eaprogress" class="muted">未取得</span></div><section class="result-section"><h3>RR・SL幅の比較</h3><div id="eacompare" class="note"></div></section><details class="fold"><summary>取引履歴を見る</summary><div id="eahistory" class="note"></div></details><details class="fold"><summary>検証の詳細・診断</summary><div id="eadiag" class="note"></div></details><details class="fold"><summary>1分足で精密検証（通信量大）</summary><div class="row" style="margin:12px 0"><button id="ea1m" type="button">全件1分足で検証</button><span id="ea1mstatus" class="muted">未実施</span></div><div id="ea1mresult" class="note"></div></details><p class="muted">Binance現物の買い候補表示。MT5のブローカー価格・約定条件と一致する保証はありません。ETHはBTCでの検証成績を適用できません。</p></div><div class="card"><div class="row"><strong>売買圧力の変化</strong><strong id="change">—</strong></div><p id="detail" class="note">データを取得しています…</p><div class="row"><button id="refresh">更新する</button><span class="muted" id="time">—</span></div></div><div class="card" style="display:none"><strong>BTC・ETH エントリー通知（iPhone Web Push）</strong>
 <p class="note">ホーム画面に追加したCVD PROから通知を許可してください。GitHub Pagesだけでは自動配信できず、Cloudflare Workerの公開設定が必要です。</p>
 <label class="note">通知サーバーURL（Cloudflare Worker）</label><input id="pushurl" type="url" placeholder="https://cvdpro-push.あなたのID.workers.dev" style="width:100%;padding:12px;background:#0e1725;color:white;border:1px solid #42617d;border-radius:9px;margin:8px 0">
 <div class="row"><button id="pushsave">URL保存</button><button id="pushon">通知を有効にする</button></div>
@@ -66,52 +66,64 @@ function drawPrice(a){lastPriceSeries=a.map(x=>x.close);paintPriceChart()}
 function paintPriceChart(){
  if(!lastPriceSeries||!lastPriceSeries.length||!lastChartRows.length)return;
  const el=$('pricegraph'),ctx=el.getContext('2d'),w=el.width,h=el.height;
- const top=23,bottom=30,usable=h-top-bottom,baseline=top+usable/2;
- const rows=lastChartRows, n=rows.length, firstOpen=rows[0].open;
- // First point is the OPEN of the first displayed candle. All later points are candle closes.
+ const left=105,right=w-115,top=32,bottom=h-57,usable=bottom-top,baseline=top+usable/2;
+ const rows=lastChartRows,n=rows.length,firstOpen=rows[0].open;
  const pricePoints=[firstOpen,...rows.map(r=>r.close)];
- // CVD is zero at that same opening time, before the first candle's volume.
  const cvdPoints=[0,...lastCvdSeries];
  const live=lastTickPrice!==null&&lastTickAt&&Date.now()-lastTickAt<=15000?lastTickPrice:null;
  const maxPriceMove=Math.max(1,...pricePoints.map(p=>Math.abs(p-firstOpen)),
    ...rows.flatMap(r=>[Math.abs(r.high-firstOpen),Math.abs(r.low-firstOpen)]),
    ...(live===null?[]:[Math.abs(live-firstOpen)]));
  const maxCvdMove=Math.max(0.000001,...cvdPoints.map(v=>Math.abs(v)));
- // Both series use the same zero/opening horizontal line, with independent vertical scales.
- const pxPerPrice=(usable*0.46)/maxPriceMove;
- const pxPerCvd=(usable*0.46)/maxCvdMove;
- const xAt=i=>8+i*(w-16)/n;
+ // The price opening and CVD zero share one baseline; axes retain independent units.
+ const pxPerPrice=(usable*0.46)/maxPriceMove,pxPerCvd=(usable*0.46)/maxCvdMove;
+ const xAt=i=>left+i*(right-left)/n;
  const yPrice=v=>baseline-(v-firstOpen)*pxPerPrice;
  const yCvd=v=>baseline-v*pxPerCvd;
  ctx.clearRect(0,0,w,h);
- ctx.strokeStyle='#304860';ctx.lineWidth=1;ctx.setLineDash([]);
+ ctx.textBaseline='middle';
+ ctx.font='19px -apple-system,BlinkMacSystemFont,sans-serif';
+ // Grid, left CVD labels, and right price labels.
  for(let i=0;i<5;i++){
-  const y=top+i*usable/4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();
+  const y=top+i*usable/4;
+  ctx.strokeStyle='#304860';ctx.lineWidth=1;ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();
+  const priceAtY=firstOpen+(baseline-y)/pxPerPrice;
+  ctx.fillStyle='#b5c8dd';ctx.textAlign='left';ctx.fillText('$'+fmt(priceAtY),right+8,y);
+  if(i%2===0){
+   const cvdAtY=(baseline-y)/pxPerCvd;
+   ctx.fillStyle='#f5cf76';ctx.textAlign='right';ctx.fillText(fmt(cvdAtY),left-8,y);
+  }
  }
- ctx.save();ctx.strokeStyle='#8ea2b9';ctx.lineWidth=1.4;ctx.setLineDash([5,6]);
- ctx.beginPath();ctx.moveTo(0,baseline);ctx.lineTo(w,baseline);ctx.stroke();ctx.restore();
+ ctx.fillStyle='#f5cf76';ctx.textAlign='right';ctx.fillText('CVD',left-8,12);
+ ctx.fillStyle='#b5c8dd';ctx.textAlign='left';ctx.fillText('価格',right+8,12);
+ ctx.save();ctx.strokeStyle='#8ea2b9';ctx.lineWidth=1.5;ctx.setLineDash([6,7]);
+ ctx.beginPath();ctx.moveTo(left,baseline);ctx.lineTo(right,baseline);ctx.stroke();ctx.restore();
  function trace(points,color,converter){
-  ctx.save();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();
+  ctx.save();ctx.strokeStyle=color;ctx.lineWidth=3.5;ctx.setLineDash([]);ctx.beginPath();
   points.forEach((v,i)=>{const x=xAt(i),y=converter(v);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});
   ctx.stroke();ctx.restore();
  }
  trace(pricePoints,'#6fc4f5',yPrice);
  if(cvdPoints.length===pricePoints.length)trace(cvdPoints,'#f5cf76',yCvd);
- // A shared opening marker makes the starting point obvious.
- ctx.beginPath();ctx.arc(xAt(0),baseline,4,0,2*Math.PI);ctx.fillStyle='#ffffff';ctx.fill();
- ctx.font='16px sans-serif';ctx.textAlign='left';ctx.fillStyle='#b5c8dd';
- ctx.fillText('$'+fmt(firstOpen+maxPriceMove),10,top+14);
- ctx.fillText('始値 $'+fmt(firstOpen),10,baseline-8);
- ctx.fillText('$'+fmt(firstOpen-maxPriceMove),10,h-8);
- ctx.textAlign='right';ctx.fillStyle='#f5cf76';
- ctx.fillText('CVD +'+fmt(maxCvdMove),w-10,top+14);
- ctx.fillText('CVD 0',w-10,baseline-8);
- ctx.fillText('CVD -'+fmt(maxCvdMove),w-10,h-8);
+ ctx.beginPath();ctx.arc(xAt(0),baseline,4.5,0,2*Math.PI);ctx.fillStyle='#ffffff';ctx.fill();
+ // Four evenly spaced date/time labels, using JST and the actual candle open times.
+ ctx.strokeStyle='#40576f';ctx.lineWidth=1;ctx.fillStyle='#aebfd3';ctx.font='18px -apple-system,BlinkMacSystemFont,sans-serif';
+ for(let j=0;j<4;j++){
+  const i=Math.round((n-1)*j/3),x=xAt(i);
+  const date=new Date(rows[i].t);
+  const parts=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(date);
+  const v=k=>parts.find(p=>p.type===k)?.value||'';
+  const label=timeframe==='1d'?v('month')+'/'+v('day'):v('month')+'/'+v('day')+' '+v('hour')+':'+v('minute');
+  ctx.beginPath();ctx.moveTo(x,bottom);ctx.lineTo(x,bottom+6);ctx.stroke();
+  ctx.textAlign=j===0?'left':j===3?'right':'center';
+  ctx.fillText(label,x,bottom+29);
+ }
  if(live!==null){
   const y=yPrice(live);
   ctx.save();ctx.setLineDash([9,7]);ctx.strokeStyle='#87e8cb';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();ctx.restore();
-  ctx.fillStyle='#87e8cb';ctx.beginPath();ctx.arc(w-9,y,6,0,2*Math.PI);ctx.fill();
+  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();ctx.restore();
+  ctx.fillStyle='#87e8cb';ctx.beginPath();ctx.arc(right,y,6,0,2*Math.PI);ctx.fill();
   $('livechartstatus').textContent='● 約定価格 $'+fmt(live)+'（未確定）';
  }else{
   $('livechartstatus').textContent='ライブ価格待機中（確定足のみ）';
