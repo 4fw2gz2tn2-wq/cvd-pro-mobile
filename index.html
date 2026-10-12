@@ -166,6 +166,22 @@ translatePage();
 })();
 </script>
 <script>
+// Display-copy correction only. The signal calculations and update cadence are unchanged.
+(()=>{
+  const oldText='成行買いが価格上昇に追随。上昇継続候補だが追い買いは慎重に。';
+  const newText='成行買い優勢と価格上昇が同時に確認される状態。上昇継続候補だが追い買いは慎重に。';
+  const guide=document.getElementById('flowGuide');
+  if(!guide)return;
+  function correct(){
+    if(guide.textContent.includes(oldText)){
+      guide.textContent=guide.textContent.replace(oldText,newText);
+    }
+  }
+  new MutationObserver(correct).observe(guide,{childList:true,characterData:true,subtree:true});
+  correct();
+})();
+</script>
+<script>
 // PWA shell only. Live market data, Binance WebSockets and GA4 are never cached.
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   window.addEventListener('load', function () {
