@@ -1,1 +1,37 @@
-{"name": "CVD PRO エントリー通知", "short_name": "CVD PRO", "start_url": "./", "scope": "./", "display": "standalone", "background_color": "#0e1725", "theme_color": "#17283c", "icons": [{"src": "./icon-192.png", "sizes": "192x192", "type": "image/png"}, {"src": "./icon-512.png", "sizes": "512x512", "type": "image/png"}]}
+{
+  "id": "./",
+  "name": "CVD PRO — Live Price & CVD",
+  "short_name": "CVD PRO",
+  "description": "Live price and cumulative volume delta for discretionary cryptocurrency trading.",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#0e1725",
+  "theme_color": "#101824",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
